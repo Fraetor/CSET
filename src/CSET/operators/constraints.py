@@ -63,10 +63,10 @@ def generate_var_constraint(varname: str, **kwargs) -> iris.Constraint:
 
     Returns
     -------
-    An Iris constraint for either:
-      - a single UM STASH code
-      - a single variable name
-      - a list of variable names (Cardington multi-input case)
+varname_constraint: iris.Constraint
+       If a UM STASHcode is requested, varname constraint is by STASHcode
+       If a single variable name is requested, constraint by varname
+       If multiple variable names are requested, constrain by list of variables.
     """
     _STASH_RE = re.compile(r"m\d{2}s\d{2}i\d{3}$")
     # ---- CASE 1: list of variable names (e.g. Cardington multi-variable) ----
