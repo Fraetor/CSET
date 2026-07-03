@@ -36,11 +36,6 @@ steps:
 
   - operator: scoreswrappers.scores_mae
     preserved_coordinates: ["time"]
-#    scores_method: $SCORES_METHOD
-
-#  - operator: scoreswrappers.scores_metrics
-#    preserved_coordinates: ["time"]
-#    scores_method: $SCORES_METHOD
 
   - operator: plot.plot_line_series
     series_coordinate: time
