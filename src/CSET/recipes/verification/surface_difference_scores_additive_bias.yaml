@@ -1,5 +1,5 @@
 category: Scores
-title: "$METHOD $VARNAME\nScores $SCORES_METHOD between $OTHER_MODEL and $BASE_MODEL"
+title: "$METHOD $VARNAME\nScores Mean Error between $OTHER_MODEL and $BASE_MODEL"
 description: |
   Extracts and plots the Mean Error (also known as the Additive Bias) in $METHOD of $VARNAME
   for all times. The ME is calculated based on that used in the
@@ -32,9 +32,8 @@ steps:
     subarea_type: $SUBAREA_TYPE
     subarea_extent: $SUBAREA_EXTENT
 
-  - operator: scoreswrappers.scores_metrics
+  - operator: scoreswrappers.scores_additive_bias
     preserved_coordinates: ["time", "grid_latitude", "grid_longitude"]
-    scores_method: $SCORES_METHOD
 
   - operator: collapse.collapse
     coordinate: ["time"]
