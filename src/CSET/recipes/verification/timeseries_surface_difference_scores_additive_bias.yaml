@@ -32,13 +32,8 @@ steps:
     subarea_type: $SUBAREA_TYPE
     subarea_extent: $SUBAREA_EXTENT
 
-  - operator: scoreswrappers.scores_mae
+  - operator: scoreswrappers.scores_additive_bias
     preserved_coordinates: ["time"]
-#    scores_method: $SCORES_METHOD
-
-#  - operator: scoreswrappers.scores_metrics
-#    preserved_coordinates: ["time"]
-#    scores_method: $SCORES_METHOD
 
   - operator: plot.plot_line_series
     series_coordinate: time
