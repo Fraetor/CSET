@@ -656,4 +656,9 @@ def custom_colormap_feature_tracking(cube: iris.cube.Cube):
         cmap = cmap
         levels = levels
         norm = norm
+
+    # Set all non-feature data to white
+    if any("feature" in name for name in varnames):
+        cmap.with_extremes(under="white")
+
     return cmap, levels, norm
