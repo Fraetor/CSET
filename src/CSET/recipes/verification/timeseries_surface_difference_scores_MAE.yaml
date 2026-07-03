@@ -1,5 +1,5 @@
 category: Scores
-title: "$VARNAME\nScores $SCORES_METHOD timeseries between $OTHER_MODEL and $BASE_MODEL"
+title: "$VARNAME\nScores Mean Absolute Error timeseries between $OTHER_MODEL and $BASE_MODEL"
 description: |
   Extracts and plots the Mean Absolute Error in $VARNAME
   for all times. The MAE is calculated based on that used in the
@@ -34,9 +34,13 @@ steps:
     subarea_type: $SUBAREA_TYPE
     subarea_extent: $SUBAREA_EXTENT
 
-  - operator: scoreswrappers.scores_metrics
+  - operator: scoreswrappers.scores_mae
     preserved_coordinates: ["time"]
-    scores_method: $SCORES_METHOD
+#    scores_method: $SCORES_METHOD
+
+#  - operator: scoreswrappers.scores_metrics
+#    preserved_coordinates: ["time"]
+#    scores_method: $SCORES_METHOD
 
   - operator: plot.plot_line_series
     series_coordinate: time
