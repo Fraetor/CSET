@@ -26,6 +26,9 @@ import iris.cube
 import CSET.operators._utils as operator_utils
 from CSET._common import iter_maybe
 
+# STASH code pattern: mXXsXXiXXX where X is a digit
+_STASH_RE = re.compile(r"^m\d{2}s\d{2}i\d{3}$")
+
 
 def generate_stash_constraint(stash: str, **kwargs) -> iris.AttributeConstraint:
     """Generate constraint from STASH code.
