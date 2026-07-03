@@ -33,11 +33,6 @@ steps:
 
   - operator: scoreswrappers.scores_correlation_pearsonr
     preserved_coordinates: ["time"]
-#    scores_method: $SCORES_METHOD
-
-#  - operator: scoreswrappers.scores_metrics
-#    preserved_coordinates: ["time"]
-#    scores_method: $SCORES_METHOD
 
   - operator: plot.plot_line_series
     series_coordinate: time
