@@ -90,7 +90,6 @@ def load(conf: Config):
                     "VARNAME": field,
                     "BASE_MODEL": base_model["name"],
                     "OTHER_MODEL": model["name"],
-                    "SCORES_METHOD": scores_method,
                     "SUBAREA_TYPE": conf.SUBAREA_TYPE if conf.SELECT_SUBAREA else None,
                     "SUBAREA_EXTENT": conf.SUBAREA_EXTENT
                     if conf.SELECT_SUBAREA
