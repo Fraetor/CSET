@@ -68,22 +68,22 @@ varname_constraint: iris.Constraint
        If a single variable name is requested, constraint by varname
        If multiple variable names are requested, constrain by list of variables.
     """
-    _STASH_RE = re.compile(r"m\d{2}s\d{2}i\d{3}$")
-    # ---- CASE 1: list of variable names (e.g. Cardington multi-variable) ----
-    if isinstance(varname, (list, tuple)):
-        return iris.Constraint(
+# Case 1: UM STASHcode input
+if _STASH_RE.match(varname):
+        return iris.AttributeConstraint(STASH=varname)
+       
+# Case 2: Multiple varnames
+elif isinstance(varname, (list, tuple)):
+return iris.Constraint(
             cube_func=lambda cube: (
                 cube.long_name in varname
                 or cube.standard_name in varname
                 or cube.var_name in varname
             )
         )
-
-    # ---- CASE 2: single UM STASH code ----
-    if _STASH_RE.match(varname):
-        return iris.AttributeConstraint(STASH=varname)
-
-    # ---- CASE 3: single variable name ----
+        
+# Case 3: Single varname
+else:
     return iris.Constraint(name=varname)
 
 
