@@ -63,28 +63,28 @@ def generate_var_constraint(varname: str, **kwargs) -> iris.Constraint:
 
     Returns
     -------
-varname_constraint: iris.Constraint
-       If a UM STASHcode is requested, varname constraint is by STASHcode
-       If a single variable name is requested, constraint by varname
-       If multiple variable names are requested, constrain by list of variables.
+    varname_constraint: iris.Constraint
+        If a UM STASHcode is requested, varname constraint is by STASHcode
+        If a single variable name is requested, constraint by varname
+        If multiple variable names are requested, constrain by list of variables.
     """
-# Case 1: UM STASHcode input
-if _STASH_RE.match(varname):
+    # Case 1: UM STASHcode input
+    if _STASH_RE.match(varname):
         return iris.AttributeConstraint(STASH=varname)
-       
-# Case 2: Multiple varnames
-elif isinstance(varname, (list, tuple)):
-return iris.Constraint(
+
+    # Case 2: Multiple varnames
+    elif isinstance(varname, (list, tuple)):
+        return iris.Constraint(
             cube_func=lambda cube: (
                 cube.long_name in varname
                 or cube.standard_name in varname
                 or cube.var_name in varname
             )
         )
-        
-# Case 3: Single varname
-else:
-    return iris.Constraint(name=varname)
+
+    # Case 3: Single varname
+    else:
+        return iris.Constraint(name=varname)
 
 
 def generate_level_constraint(
