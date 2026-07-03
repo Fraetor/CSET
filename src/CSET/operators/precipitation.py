@@ -286,8 +286,12 @@ def MAUL_properties(
                             maul_start = []
                             maul_end = []
                             maul_dep = []
-                            # Loop over the number of MAULs (plus one to ensure
-                            # the case for only one MAUL being present).
+                            # Loop over the number of MAULs. The loop starts
+                            # at one as a value of zero implies there is not
+                            # a MAUL present, so the first MAUL is one.
+                            # Given this labelling convention plus one is required
+                            # to ensure that the correct number of MAULs are
+                            # looped over.
                             for maul in range(1, np.max(labels) + 1):
                                 # Find all vertical indices belonging to a MAUL.
                                 maul_range = np.where(labels == maul)
