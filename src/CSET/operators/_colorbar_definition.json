@@ -178,29 +178,6 @@
     "max": 1.1,
     "min": 0.5
   },
-  "feature_id": {
-    "cmap": "viridis",
-    "max": 4000,
-    "min": 1,
-    "ymax": 1.0,
-    "ymin": 0.0
-  },
-  "feature_init": {
-    "cmap": "Blues",
-    "levels": [
-      0.5,
-      1
-    ],
-    "ymax": 1.0,
-    "ymin": 0.0
-  },
-  "feature_lifetime": {
-    "cmap": "YlGnBu",
-    "max": 150,
-    "min": 1,
-    "ymax": 1.0,
-    "ymin": 0.0
-  },
   "fog_fraction_at_screen_level": {
     "cmap": "viridis",
     "max": 1,
