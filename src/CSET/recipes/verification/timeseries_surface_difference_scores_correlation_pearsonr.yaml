@@ -1,5 +1,5 @@
 category: Scores
-title: "$VARNAME\nScores $SCORES_METHOD timeseries between $OTHER_MODEL and $BASE_MODEL"
+title: "$VARNAME\nScores Pearson's Correlation timeseries between $OTHER_MODEL and $BASE_MODEL"
 description: |
   Extracts and plots the Pearson's Correlation coefficient in $VARNAME
   for all times. The PC is calculated based on that used in the
@@ -31,9 +31,13 @@ steps:
     subarea_type: $SUBAREA_TYPE
     subarea_extent: $SUBAREA_EXTENT
 
-  - operator: scoreswrappers.scores_metrics
+  - operator: scoreswrappers.scores_correlation_pearsonr
     preserved_coordinates: ["time"]
-    scores_method: $SCORES_METHOD
+#    scores_method: $SCORES_METHOD
+
+#  - operator: scoreswrappers.scores_metrics
+#    preserved_coordinates: ["time"]
+#    scores_method: $SCORES_METHOD
 
   - operator: plot.plot_line_series
     series_coordinate: time
