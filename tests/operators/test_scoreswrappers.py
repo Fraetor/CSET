@@ -16,6 +16,7 @@
 
 import datetime
 
+import cf_units
 import iris
 import iris.analysis.calculus
 import iris.coords
@@ -178,6 +179,58 @@ def test_difference_flip_pressure_order(transect_source_cube_readonly):
     assert np.allclose(rmse_cube.data, np.zeros_like(rmse_cube.data), atol=1e-9)
 
 
-def test_crps(ensemble_cube):
+@pytest.fixture
+def feature_cube() -> iris.cube.Cube:
+    """Set up three timesteps and three realizations of data and place into cube."""
+    data_arr = np.zeros((3, 3, 10, 10))
+    data_arr[0:2, 0, 2:6, 2:6] = 1
+    data_arr[0:2, 1, 3:7, 3:7] = 1
+    data_arr[0:2, 2, 4:8, 4:8] = 1
+
+    realization = iris.coords.DimCoord(points=[0, 1, 2], standard_name="realization")
+    time_units = cf_units.Unit("days since 2000-01-01 00:00:00", calendar="gregorian")
+    time_start = datetime.datetime(2010, 1, 1, 0, 0, 0)
+    time_dt_points = [
+        time_start + datetime.timedelta(minutes=5 * idx) for idx in range(3)
+    ]
+    time_points = [time_units.date2num(time_point) for time_point in time_dt_points]
+    time_coord = iris.coords.DimCoord(
+        points=time_points, standard_name="time", units=time_units
+    )
+
+    coord_system = iris.coord_systems.TransverseMercator(
+        latitude_of_projection_origin=55, longitude_of_central_meridian=0
+    )
+    coord_range = np.arange(0, 100, 10)
+    proj_y_coord = iris.coords.DimCoord(
+        points=coord_range,
+        standard_name="projection_y_coordinate",
+        var_name="projection_y_coordinate",
+        units="m",
+        coord_system=coord_system,
+    )
+    proj_x_coord = iris.coords.DimCoord(
+        points=coord_range,
+        standard_name="projection_x_coordinate",
+        var_name="projection_x_coordinate",
+        units="m",
+        coord_system=coord_system,
+    )
+
+    proj_y_coord.guess_bounds()
+    proj_x_coord.guess_bounds()
+
+    coords = (realization, time_coord, proj_y_coord, proj_x_coord)
+    dim_coords_and_dims = [(coord, dim) for dim, coord in enumerate(coords)]
+    cube = iris.cube.Cube(
+        data=data_arr,
+        dim_coords_and_dims=dim_coords_and_dims,
+        long_name="crps test",
+    )
+    return cube
+
+
+def test_crps_(feature_cube):
     """Test crps temp."""
-    scoreswrappers.scores_crps_for_ensemble(ensemble_cube)
+    breakpoint()
+    scoreswrappers.scores_crps_for_ensemble(feature_cube)

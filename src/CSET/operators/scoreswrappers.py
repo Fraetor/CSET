@@ -259,7 +259,7 @@ def scores_crps_for_ensemble(
     ens_mem = cubes.extract(
         generate_remove_single_ensemble_member_constraint(control_member)
     )
-
+    breakpoint()
     # Realising the data in advance provides a large speedup
     _ = ctrl.data
     _ = ens_mem.data
@@ -267,7 +267,7 @@ def scores_crps_for_ensemble(
 
     ctrl = xr.DataArray.from_iris(ctrl)
     ens_mem = xr.DataArray.from_iris(ens_mem)
-
+    breakpoint()
     crps = xr.DataArray.to_iris(
         scores.probability.crps_for_ensemble(
             ens_mem,
