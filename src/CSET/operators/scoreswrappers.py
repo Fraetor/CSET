@@ -255,11 +255,17 @@ def scores_crps_for_ensemble(
         )
         control_member = new_control_member
 
+    if cubes.coord("time").shape[0] == 1:
+        raise ValueError("Cube has only one time coordinate.")
+
+    if cubes.coord("realization").shape[0] < 3:
+        raise ValueError("Cube should have one control member and at least two members")
+
     ctrl = cubes.extract(generate_realization_constraint([control_member]))
     ens_mem = cubes.extract(
         generate_remove_single_ensemble_member_constraint(control_member)
     )
-    breakpoint()
+
     # Realising the data in advance provides a large speedup
     _ = ctrl.data
     _ = ens_mem.data
@@ -267,7 +273,7 @@ def scores_crps_for_ensemble(
 
     ctrl = xr.DataArray.from_iris(ctrl)
     ens_mem = xr.DataArray.from_iris(ens_mem)
-    breakpoint()
+
     crps = xr.DataArray.to_iris(
         scores.probability.crps_for_ensemble(
             ens_mem,
