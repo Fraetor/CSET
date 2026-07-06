@@ -600,7 +600,7 @@ def custom_colormap_scores(cube: iris.cube.Cube):
     return cmap, levels, norm
 
 
-def custom_colormap_feature_tracking(cube: iris.cube.Cube):
+def custom_colormap_feature_tracking(cube: iris.cube.Cube, cmap, levels, norm):
     """Return altered colormap for feature tracking.
 
     Parameters
@@ -616,7 +616,7 @@ def custom_colormap_feature_tracking(cube: iris.cube.Cube):
         should be taken as the range.
     norm: BoundaryNorm.
     """
-    varnames = filter(None, [cube.long_name, cube.standard_name, cube.var_name])
+    varnames = list(filter(None, [cube.long_name, cube.standard_name, cube.var_name]))
     if (
         any("feature_id" in name for name in varnames)
         and "difference" not in cube.long_name
@@ -627,7 +627,7 @@ def custom_colormap_feature_tracking(cube: iris.cube.Cube):
         cmap = plt.get_cmap("viridis")
         # Normalize the levels
         norm = mcolors.BoundaryNorm(levels, cmap.N)
-        logging.info("change colormap for feature tracking variable colorbar.")
+        logging.info("change colormap for feature id variable colorbar.")
     elif (
         any("feature_lifetime" in name for name in varnames)
         and "difference" not in cube.long_name
@@ -645,11 +645,11 @@ def custom_colormap_feature_tracking(cube: iris.cube.Cube):
         and "mask" not in cube.long_name
     ):
         # Define the levels and colors
-        levels = [0.5, 1]
+        levels = np.array([0.5, 1])
         cmap = plt.get_cmap("Blues")
         # Normalize the levels
         norm = mcolors.BoundaryNorm(levels, cmap.N)
-        logging.info("change colormap for feature lifetime variable colorbar.")
+        logging.info("change colormap for feature init variable colorbar.")
 
     else:
         # do nothing and keep existing colorbar attributes
