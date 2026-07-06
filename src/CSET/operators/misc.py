@@ -106,13 +106,13 @@ def remove_scalar_coords(
         removed where present.
     """
     if not isinstance(cubes, CubeList):
-        cubes = CubeList([cubes])
+        cubes = CubeList(iter_maybe(cubes))
 
     if isinstance(coords, str):
         coords = [coords]
 
     for cube in cubes:
-        for coord_name in coords:
+        for coord_name in iter_maybe(coords):
             if cube.coords(coord_name):
                 coord = cube.coord(coord_name)
                 # only remove if scalar
