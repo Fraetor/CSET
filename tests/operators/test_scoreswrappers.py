@@ -176,3 +176,8 @@ def test_difference_flip_pressure_order(transect_source_cube_readonly):
     assert isinstance(rmse_cube, iris.cube.Cube)
     # As both cubes use the same data, check the difference is zero.
     assert np.allclose(rmse_cube.data, np.zeros_like(rmse_cube.data), atol=1e-9)
+
+
+def test_crps(ensemble_cube):
+    """Test crps temp."""
+    scoreswrappers.scores_crps_for_ensemble(ensemble_cube)

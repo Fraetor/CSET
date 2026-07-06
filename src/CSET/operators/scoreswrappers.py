@@ -246,11 +246,11 @@ def scores_crps_for_ensemble(
         Forecasting, 15, 559–570, https://doi.org/10.1175/1520-0434(2000)015<0559:DOTCRP>2.0.CO;2.
     """
     if control_member != 0:
-        logging.WARNING("control member is usual 0")
+        logging.warning("control member is usual 0")
 
     if control_member not in cubes.coords("realization")[0].points:
         new_control_member = cubes.coords("realization")[0].points[0]
-        logging.WARNING(
+        logging.warning(
             f"control member value {control_member} out of bounds, defaulting to control member={new_control_member}"
         )
         control_member = new_control_member
