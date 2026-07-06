@@ -82,7 +82,7 @@ def remove_attribute(
 
 
 def remove_scalar_coords(cubes, coords):
-    """Remove scalar coordinates.
+    """Remove scalar coordinates from cube.
 
     examples would be: realization, forecast_reference_time from model cubes.
     """
