@@ -48,6 +48,29 @@ def _make_scalar_cube(
     return cube
 
 
+def test_sensible_heat_units_accepts_surface_pressure():
+    """Verify fallback path for pressure name."""
+    wT = _make_scalar_cube(
+        0.1,
+        "wt_covariance_2m",
+        units=Unit("K m s-1"),
+    )
+    temp = _make_scalar_cube(
+        20.0,
+        "air_temperature_rtd_1p2m",
+        units=Unit("degC"),
+        standard_name="air_temperature",
+    )
+    press = _make_scalar_cube(
+        1000.0,
+        "surface_pressure",
+        units=Unit("hPa"),
+    )
+    out = fluxes.sensible_heat_flux_from_covariance([wT, temp, press])
+    assert isinstance(out, iris.cube.Cube)
+    assert out.var_name == "surface_upward_sensible_heat_flux"
+
+
 def test_sensible_heat_units_missing_required_inputs():
     """Raise if one of the required physical inputs cannot be identified."""
     wT = _make_scalar_cube(

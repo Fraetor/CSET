@@ -62,63 +62,63 @@ def _is_wt_covar_cube(cube):
 
 def sensible_heat_flux_from_covariance(cubes, **kwargs):
     """
-Convert turbulent temperature covariance into sensible heat flux.
+    Convert turbulent temperature covariance into sensible heat flux.
 
-This operator computes surface upward sensible heat flux (SHF) from
-temperature covariance using:
+    This operator computes surface upward sensible heat flux (SHF) from
+    temperature covariance using:
 
     SHF = ρ * CPD * (w'T')
 
-where air density is calculated from pressure and temperature via the
-ideal gas law.
+    where air density is calculated from pressure and temperature via the
+    ideal gas law.
 
-The required input cubes are identified primarily from their physical
-units:
+    The required input cubes are identified primarily from their physical
+    units:
 
     - temperature covariance (e.g. K m s-1 or degC m s-1)
     - air temperature (convertible to K or degC)
     - air pressure (convertible to Pa)
 
-If multiple physically plausible candidates are found, CF metadata
-(e.g. standard names) are used as a secondary disambiguation step.
-A ValueError is raised if the required cubes cannot be uniquely
-identified.
+    If multiple physically plausible candidates are found, CF metadata
+    (e.g. standard names) are used as a secondary disambiguation step.
+    A ValueError is raised if the required cubes cannot be uniquely
+    identified.
 
-Parameters
-----------
-cubes : Cube or CubeList
+    Parameters
+    ----------
+    cubes : Cube or CubeList
     Input cube(s) containing exactly one identifiable covariance,
     temperature and pressure cube. Additional cubes are passed through
     unchanged.
 
-**kwargs : dict, optional
+    **kwargs : dict, optional
     Additional keyword arguments.
 
-Returns
--------
-Cube or CubeList
+    Returns
+    -------
+    Cube or CubeList
     Input cubes with the pressure, temperature and covariance cubes
     removed and a new
     ``surface_upward_sensible_heat_flux`` cube added. Unrelated cubes
     are passed through unchanged.
 
-Notes
------
-- Pressure is converted internally to Pa and temperature to K.
-- Covariance units of ``degC m s-1`` are treated as numerically
-  equivalent to ``K m s-1`` because temperature offsets cancel when
-  forming fluctuations.
-- Input cubes are assumed to be physically compatible; no regridding or
-  coordinate alignment is performed.
-- Identification is unit-based, with metadata used only to resolve
-  ambiguities.
+    Notes
+    -----
+    - Pressure is converted internally to Pa and temperature to K.
+    - Covariance units of ``degC m s-1`` are treated as numerically
+    equivalent to ``K m s-1`` because temperature offsets cancel when
+    forming fluctuations.
+    - Input cubes are assumed to be physically compatible; no regridding or
+    coordinate alignment is performed.
+    - Identification is unit-based, with metadata used only to resolve
+    ambiguities.
 
-Raises
-------
-ValueError
+    Raises
+    ------
+    ValueError
     If suitable pressure, temperature or covariance cubes cannot be
     uniquely identified.
-"""
+    """
     from cf_units import Unit
 
     cubes = (
@@ -130,23 +130,29 @@ ValueError
     # Pressure cube
     p_cand = [c for c in cubes if _is_p_cube(c)]
     if len(p_cand) > 1:
-        preferred = [
-            c for c in p_cand
-            if c.standard_name == "air_pressure"
-        ]
+        preferred = [c for c in p_cand if c.name() == "barometric_pressure"]
 
         if len(preferred) == 1:
             p_cand = preferred
 
+    print("=== pressure candidates ===")
+    for c in p_cand:
+        print(
+            "name=",
+            c.name(),
+            "var_name=",
+            c.var_name,
+            "standard_name=",
+            c.standard_name,
+            "long_name=",
+            c.long_name,
+        )
     pressure = _exactly_one(p_cand, "pressure")
 
     # Temperature cube
     T_cand = [c for c in cubes if _is_T_cube(c)]
     if len(T_cand) > 1:
-        preferred = [
-            c for c in T_cand
-            if c.standard_name == "air_temperature"
-        ]
+        preferred = [c for c in T_cand if c.standard_name == "air_temperature"]
 
         if len(preferred) == 1:
             T_cand = preferred
@@ -201,10 +207,7 @@ ValueError
 
     used_ids = {id(wT), id(temp), id(pressure)}
 
-    out = iris.cube.CubeList(
-        c for c in cubes
-        if id(c) not in used_ids
-    )
+    out = iris.cube.CubeList(c for c in cubes if id(c) not in used_ids)
 
     out.append(shf)
 
