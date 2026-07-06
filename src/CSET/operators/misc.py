@@ -107,10 +107,10 @@ def remove_scalar_coords(
     """
     if not isinstance(cubes, CubeList):
         cubes = CubeList([cubes])
-    
+
     if isinstance(coords, str):
         coords = [coords]
-        
+
     for cube in cubes:
         for coord_name in coords:
             if cube.coords(coord_name):
