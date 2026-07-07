@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="bd3d1720-a976-4d56-802c-a3b7f0ee2ccb" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/CSET/operators/scoreswrappers.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/CSET/operators/scoreswrappers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/operators/test_scoreswrappers.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/operators/test_scoreswrappers.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
