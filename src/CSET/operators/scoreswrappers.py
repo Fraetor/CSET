@@ -244,35 +244,3 @@ def scores_correlation_pearsonr(
     )
     scores_cube.rename(f"Pearson_Correlation_of_{base.name()}")
     return scores_cube
-
-
-def scores_metrics(
-    cubes: CubeList,
-    preserved_coordinates: list[str] | str | None = None,
-    scores_method: str | None = None,
-):
-    """Select which scores metric to use."""
-    # initialise the output cubelist
-    cubes_output = iris.cube.CubeList([])
-
-    match scores_method:
-        case "RMSE":
-            # Use the RMSE method
-            return scores_rmse(cubes, preserved_coordinates)
-
-        case "additive_bias":
-            # Use the Additive Bias (aka mean error) method
-            return scores_additive_bias(cubes, preserved_coordinates)
-
-        case "MAE":
-            # Use the MAE method
-            return scores_mae(cubes, preserved_coordinates)
-
-        case "correlation_pearsonr":
-            # Use the Pearson's Correlation method
-            return scores_correlation_pearsonr(cubes, preserved_coordinates)
-
-        case _:
-            raise ValueError(f"No such scores metric: {scores_method}")
-
-    return cubes_output
