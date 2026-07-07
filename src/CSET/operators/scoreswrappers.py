@@ -181,6 +181,8 @@ def scores_rmse(cubes: CubeList, preserved_coordinates: list[str] | str | None =
         forecasts, predictions or models (2.5.0)". Zenodo. doi: 10.5281/zenodo.18638494
     """
     base, other = _sort_cubes_for_verification(cubes)
+    # if preserved_coordinates == ["grid_latitude", "grid_longitude"]:
+    #  time_coord = base.coord[0]("time")
     # Scores operators on xarray data arrays, so we transform the iris cube into an array,
     # apply scores, and then transform it back.
     scores_cube = xr.DataArray.to_iris(
@@ -191,6 +193,8 @@ def scores_rmse(cubes: CubeList, preserved_coordinates: list[str] | str | None =
         )
     )
     scores_cube.rename(f"RMSE_of_{base.name()}")
+    # if preserved_coordinates == ["grid_latitude", "grid_longitude"]:
+    #   scores_cube.add_aux_coord(time_coord)
     return scores_cube
 
 
