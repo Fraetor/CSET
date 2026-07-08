@@ -79,9 +79,12 @@ def sensible_heat_flux_from_covariance(
 
         shf.units = Unit("W m-2")
         shf.rename("surface_upward_sensible_heat_flux")
+        # Keep compatibility with existing tests/output
+        shf.var_name = "surface_upward_sensible_heat_flux"
+
         out.append(shf)
 
-    return out
+    return out[0] if len(out) == 1 else out
 
 
 def latent_heat_units(
