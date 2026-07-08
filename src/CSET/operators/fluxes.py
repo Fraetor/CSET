@@ -62,7 +62,6 @@ def sensible_heat_flux_from_covariance(
         iter_maybe(pressure),
         strict=True,
     ):
-
         # Unit conversions
         temp_K = temp_cube.copy()
         temp_K.convert_units("K")
@@ -73,7 +72,7 @@ def sensible_heat_flux_from_covariance(
         # Treat degC covariance numerically as K covariance
         if str(wt_cov.units) == "degC m s-1":
             wt_cov.units = Unit("K m s-1")
-            
+
         # Density and SHF
         rho_air = pres_Pa / (RD * temp_K)
         shf = CPD * rho_air * wt_cov

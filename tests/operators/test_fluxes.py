@@ -18,7 +18,6 @@ import iris
 import iris.coords
 import iris.cube
 import numpy as np
-import pytest
 from cf_units import Unit
 
 from CSET.operators import fluxes
@@ -50,7 +49,6 @@ def _make_scalar_cube(
 
 def test_sensible_heat_flux_core_calculation():
     """Compute sensible heat flux from covariance, temperature and pressure."""
-
     wT = _make_scalar_cube(
         0.1,
         "wt_covariance_2m",
@@ -88,7 +86,6 @@ def test_sensible_heat_flux_core_calculation():
 
 def test_sensible_heat_flux_accepts_degc_covariance():
     """DegC m s-1 covariance should be treated as K m s-1."""
-
     wT = _make_scalar_cube(
         0.1,
         "wt_covariance_2m",
