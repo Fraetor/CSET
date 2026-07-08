@@ -87,7 +87,7 @@ def test_sensible_heat_flux_core_calculation():
 
 
 def test_sensible_heat_flux_accepts_degc_covariance():
-    """degC m s-1 covariance should be treated as K m s-1."""
+    """DegC m s-1 covariance should be treated as K m s-1."""
 
     wT = _make_scalar_cube(
         0.1,
