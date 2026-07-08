@@ -48,8 +48,9 @@ def _make_scalar_cube(
     return cube
 
 
-def test_sensible_heat_units_accepts_surface_pressure():
-    """Verify fallback path for pressure name."""
+def test_sensible_heat_flux_core_calculation():
+    """Compute sensible heat flux from covariance, temperature and pressure."""
+
     wT = _make_scalar_cube(
         0.1,
         "wt_covariance_2m",
@@ -61,57 +62,16 @@ def test_sensible_heat_units_accepts_surface_pressure():
         units=Unit("degC"),
         standard_name="air_temperature",
     )
-    press = _make_scalar_cube(
+    pressure = _make_scalar_cube(
         1000.0,
         "surface_pressure",
         units=Unit("hPa"),
     )
-    out = fluxes.sensible_heat_flux_from_covariance([wT, temp, press])
-    assert isinstance(out, iris.cube.Cube)
-    assert out.var_name == "surface_upward_sensible_heat_flux"
-
-
-def test_sensible_heat_units_missing_required_inputs():
-    """Raise if one of the required physical inputs cannot be identified."""
-    wT = _make_scalar_cube(
-        0.1,
-        "wt_covariance_2m",
-        units=Unit("K m s-1"),
-        long_name="vertical wind-temperature covariance",
+    out = fluxes.sensible_heat_flux_from_covariance(
+        wt_flux=wT,
+        air_temperature=temp,
+        pressure=pressure,
     )
-    temp = _make_scalar_cube(
-        20.0,
-        "air_temperature_rtd_1p2m",
-        units=Unit("degC"),
-        standard_name="air_temperature",
-    )
-    # pressure missing
-    with pytest.raises(ValueError, match="pressure"):
-        fluxes.sensible_heat_flux_from_covariance([wT, temp])
-
-
-def test_sensible_heat_units_core_calculation():
-    """Compute sensible heat flux from covariance, temperature, and pressure."""
-    wT = _make_scalar_cube(
-        0.1,
-        "wt_covariance_2m",
-        units=Unit("K m s-1"),
-        long_name="vertical wind-temperature covariance",
-    )
-    temp = _make_scalar_cube(
-        20.0,
-        "air_temperature_rtd_1p2m",
-        units=Unit("degC"),
-        standard_name="air_temperature",
-    )
-    press = _make_scalar_cube(
-        1000.0,
-        "barometric_pressure",
-        units=Unit("hPa"),
-        long_name="barometric pressure",
-    )
-
-    out = fluxes.sensible_heat_flux_from_covariance([wT, temp, press])
     arr = out.data
     if hasattr(arr, "compute"):
         arr = arr.compute()
@@ -119,115 +79,37 @@ def test_sensible_heat_units_core_calculation():
     T = 20.0 + 273.15
     pPa = 1000.0 * 100.0
     rho = pPa / (RD * T)
+
     expected = CPD * rho * 0.1
     assert np.isclose(arr[0, 0], expected)
-    assert out.var_name == "surface_upward_sensible_heat_flux"
+    assert out.name() == "surface_upward_sensible_heat_flux"
     assert out.units == Unit("W m-2")
 
 
-def test_sensible_heat_units_returns_cube_when_only_shf_remains():
-    """Return a single Cube if only the derived SHF cube remains."""
+def test_sensible_heat_flux_accepts_degc_covariance():
+    """degC m s-1 covariance should be treated as K m s-1."""
+
     wT = _make_scalar_cube(
         0.1,
         "wt_covariance_2m",
-        units=Unit("K m s-1"),
-        long_name="vertical wind-temperature covariance",
+        units=Unit("degC m s-1"),
     )
     temp = _make_scalar_cube(
         20.0,
         "air_temperature_rtd_1p2m",
         units=Unit("degC"),
-        standard_name="air_temperature",
     )
-    press = _make_scalar_cube(
+    pressure = _make_scalar_cube(
         1000.0,
-        "barometric_pressure",
-        units=Unit("hPa"),
-        long_name="barometric pressure",
-    )
-
-    out = fluxes.sensible_heat_flux_from_covariance([wT, temp, press])
-    assert isinstance(out, iris.cube.Cube)
-    assert out.var_name == "surface_upward_sensible_heat_flux"
-    assert out.units == Unit("W m-2")
-
-
-def test_sensible_heat_units_passthrough_and_filtering():
-    """Remove only the cubes used in SHF calculation and retain unrelated cubes."""
-    wT = _make_scalar_cube(
-        0.1,
-        "wt_covariance_2m",
-        units=Unit("K m s-1"),
-        long_name="vertical wind-temperature covariance",
-    )
-    temp = _make_scalar_cube(
-        20.0,
-        "air_temperature_rtd_1p2m",
-        units=Unit("degC"),
-        standard_name="air_temperature",
-    )
-    press = _make_scalar_cube(
-        1000.0,
-        "barometric_pressure",
-        units=Unit("hPa"),
-        long_name="barometric pressure",
-    )
-    extra = _make_scalar_cube(
-        5.0,
-        "other_var",
-        units=Unit("1"),
-    )
-
-    out = fluxes.sensible_heat_flux_from_covariance([wT, temp, press, extra])
-    assert isinstance(out, iris.cube.CubeList)
-    varnames = [c.var_name for c in out]
-    # input variables removed
-    assert "wt_covariance_2m" not in varnames
-    assert "air_temperature_rtd_1p2m" not in varnames
-    assert "barometric_pressure" not in varnames
-    # unrelated cube retained
-    assert "other_var" in varnames
-    # SHF added
-    assert "surface_upward_sensible_heat_flux" in varnames
-
-
-def test_sensible_heat_units_prefers_barometric_pressure():
-    """Prefer the strongest-scoring pressure cube."""
-    wT = _make_scalar_cube(
-        0.1,
-        "wt_covariance_2m",
-        units=Unit("K m s-1"),
-    )
-    temp = _make_scalar_cube(
-        20.0,
-        "air_temperature_rtd_1p2m",
-        units=Unit("degC"),
-        standard_name="air_temperature",
-    )
-    press1 = _make_scalar_cube(
-        1000.0,
-        "barometric_pressure",
-        units=Unit("hPa"),
-    )
-    press2 = _make_scalar_cube(
-        1002.0,
         "surface_pressure",
         units=Unit("hPa"),
     )
-    out = fluxes.sensible_heat_flux_from_covariance([wT, temp, press1, press2])
-
-    # extract SHF cube
-    shf = next(c for c in out if c.var_name == "surface_upward_sensible_heat_flux")
-    arr = shf.data
-    if hasattr(arr, "compute"):
-        arr = arr.compute()
-
-    T = 20.0 + 273.15
-    pPa = 1000.0 * 100.0  # should use barometric_pressure
-    rho = pPa / (RD * T)
-    expected = CPD * rho * 0.1
-
-    assert np.isclose(arr[0, 0], expected)
+    out = fluxes.sensible_heat_flux_from_covariance(
+        wt_flux=wT,
+        air_temperature=temp,
+        pressure=pressure,
+    )
+    assert out.units == Unit("W m-2")
 
 
 def _make_scalar_latent_cube(
