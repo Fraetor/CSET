@@ -23,195 +23,66 @@ from CSET._common import iter_maybe
 from CSET.operators._atmospheric_constants import CPD, LV, RD
 
 
-def _exactly_one(matches, role):
-    if len(matches) == 0:
-        raise ValueError(f"sensible_heat_units could not identify a unique {role} cube")
-    if len(matches) > 1:
-        names = [getattr(c, "var_name", None) or c.name() for c in matches]
-        raise ValueError(
-            f"sensible_heat_units found multiple possible {role} cubes: {names}"
-        )
-    return matches[0]
-
-
-def _is_p_cube(cube):
-    return (
-        cube.units is not None
-        and not cube.units.is_unknown()
-        and cube.units.is_convertible(Unit("Pa"))
-    )
-
-
-def _is_T_cube(cube):
-    if cube.units is None or cube.units.is_unknown():
-        return False
-    return cube.units.is_convertible(Unit("K")) or cube.units.is_convertible(
-        Unit("degC")
-    )
-
-
-def _is_wt_covar_cube(cube):
-    if cube.units is None or cube.units.is_unknown():
-        return False
-    # turbulence covariance may be recorded either as K m s-1
-    # or degC m s-1; these are equivalent
-    return cube.units.is_convertible(Unit("K m s-1")) or cube.units.is_convertible(
-        Unit("degC m s-1")
-    )
-
-
-def sensible_heat_flux_from_covariance(cubes, **kwargs):
+def sensible_heat_flux_from_covariance(
+    wt_flux: iris.cube.Cube | iris.cube.CubeList,
+    air_temperature: iris.cube.Cube | iris.cube.CubeList,
+    pressure: iris.cube.Cube | iris.cube.CubeList,
+) -> iris.cube.CubeList:
     """
     Convert turbulent temperature covariance into sensible heat flux.
 
-    This operator computes surface upward sensible heat flux (SHF) from
-    temperature covariance using:
+    Computes:
+        SHF = rho * CPD * w'T'
 
-    SHF = ρ * CPD * (w'T')
-
-    where air density is calculated from pressure and temperature via the
-    ideal gas law.
-
-    The required input cubes are identified primarily from their physical
-    units:
-
-    - temperature covariance (e.g. K m s-1 or degC m s-1)
-    - air temperature (convertible to K or degC)
-    - air pressure (convertible to Pa)
-
-    If multiple physically plausible candidates are found, CF metadata
-    (e.g. standard names) are used as a secondary disambiguation step.
-    A ValueError is raised if the required cubes cannot be uniquely
-    identified.
+    where:
+        rho = pressure / (RD * temperature)
 
     Parameters
     ----------
-    cubes : Cube or CubeList
-    Input cube(s) containing exactly one identifiable covariance,
-    temperature and pressure cube. Additional cubes are passed through
-    unchanged.
+    wt_flux : iris.cube.Cube or iris.cube.CubeList
+        Turbulent temperature covariance (w'T').
 
-    **kwargs : dict, optional
-    Additional keyword arguments.
+    air_temperature : iris.cube.Cube or iris.cube.CubeList
+        Air temperature.
+
+    pressure : iris.cube.Cube or iris.cube.CubeList
+        Air pressure.
 
     Returns
     -------
-    Cube or CubeList
-    Input cubes with the pressure, temperature and covariance cubes
-    removed and a new
-    ``surface_upward_sensible_heat_flux`` cube added. Unrelated cubes
-    are passed through unchanged.
-
-    Notes
-    -----
-    - Pressure is converted internally to Pa and temperature to K.
-    - Covariance units of ``degC m s-1`` are treated as numerically
-    equivalent to ``K m s-1`` because temperature offsets cancel when
-    forming fluctuations.
-    - Input cubes are assumed to be physically compatible; no regridding or
-    coordinate alignment is performed.
-    - Identification is unit-based, with metadata used only to resolve
-    ambiguities.
-
-    Raises
-    ------
-    ValueError
-    If suitable pressure, temperature or covariance cubes cannot be
-    uniquely identified.
+    iris.cube.CubeList
+        Surface upward sensible heat flux cube(s).
     """
     from cf_units import Unit
 
-    cubes = (
-        iris.cube.CubeList(cubes)
-        if not isinstance(cubes, iris.cube.CubeList)
-        else cubes
-    )
+    out = iris.cube.CubeList()
+    for wt_cube, temp_cube, pres_cube in zip(
+        iter_maybe(wt_flux),
+        iter_maybe(air_temperature),
+        iter_maybe(pressure),
+        strict=True,
+    ):
 
-    # Pressure cube
-    p_cand = [c for c in cubes if _is_p_cube(c)]
-    if len(p_cand) > 1:
-        preferred = [c for c in p_cand if c.name() == "barometric_pressure"]
-
-        if len(preferred) == 1:
-            p_cand = preferred
-
-    print("=== pressure candidates ===")
-    for c in p_cand:
-        print(
-            "name=",
-            c.name(),
-            "var_name=",
-            c.var_name,
-            "standard_name=",
-            c.standard_name,
-            "long_name=",
-            c.long_name,
-        )
-    pressure = _exactly_one(p_cand, "pressure")
-
-    # Temperature cube
-    T_cand = [c for c in cubes if _is_T_cube(c)]
-    if len(T_cand) > 1:
-        preferred = [c for c in T_cand if c.standard_name == "air_temperature"]
-
-        if len(preferred) == 1:
-            T_cand = preferred
-
-    temp = _exactly_one(T_cand, "temperature")
-
-    # Covariance cube
-    covar_cand = [c for c in cubes if _is_wt_covar_cube(c)]
-    if len(covar_cand) > 1:
-        preferred = []
-        for cube in covar_cand:
-            text = " ".join(
-                str(x).lower()
-                for x in (
-                    cube.standard_name,
-                    cube.var_name,
-                    cube.long_name,
-                    cube.name(),
-                )
-                if x
-            )
-            if "wt" in text or "w't" in text:
-                preferred.append(cube)
-
-        if len(preferred) == 1:
-            covar_cand = preferred
-
-    wT = _exactly_one(covar_cand, "w'T' covariance")
-
-    #
-    # Unit conversions
-    #
-    temp_K = temp.copy()
-    if temp_K.units.is_convertible(Unit("degC")):
+        # Unit conversions
+        temp_K = temp_cube.copy()
         temp_K.convert_units("K")
+        pres_Pa = pres_cube.copy()
+        pres_Pa.convert_units("Pa")
+        wt_cov = wt_cube.copy()
 
-    pres_Pa = pressure.copy()
-    pres_Pa.convert_units("Pa")
+        # Treat degC covariance numerically as K covariance
+        if str(wt_cov.units) == "degC m s-1":
+            wt_cov.units = Unit("K m s-1")
+            
+        # Density and SHF
+        rho_air = pres_Pa / (RD * temp_K)
+        shf = CPD * rho_air * wt_cov
 
-    # Treat degC covariance numerically as K covariance
-    wT_cov = wT.copy()
-    if str(wT_cov.units) == "degC m s-1":
-        wT_cov.units = Unit("K m s-1")
+        shf.units = Unit("W m-2")
+        shf.rename("surface_upward_sensible_heat_flux")
+        out.append(shf)
 
-    rho_air = pres_Pa.data / (RD * temp_K.data)
-
-    shf = wT_cov.copy()
-    shf.data = CPD * rho_air * wT_cov.data
-    shf.units = Unit("W m-2")
-    shf.rename("surface_upward_sensible_heat_flux")
-    shf.var_name = "surface_upward_sensible_heat_flux"
-
-    used_ids = {id(wT), id(temp), id(pressure)}
-
-    out = iris.cube.CubeList(c for c in cubes if id(c) not in used_ids)
-
-    out.append(shf)
-
-    return out[0] if len(out) == 1 else out
+    return out
 
 
 def latent_heat_units(
