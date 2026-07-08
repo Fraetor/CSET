@@ -55,45 +55,45 @@ def generate_stash_constraint(stash: str, **kwargs) -> iris.AttributeConstraint:
 def generate_var_constraint(varname: str, **kwargs) -> iris.Constraint:
     """Generate constraint from variable name or STASH code.
 
-    Operator that takes a CF compliant variable name string, and generates an
+    Operator that takes a CF compliant variable name string or list of names, and generates an
     iris constraint to be passed into the read or filter operator. Can also be
     passed a STASH code to generate a STASH constraint.
 
     Arguments
     ---------
-    varname: str
-        CF compliant name of variable, or a UM STASH code such as "m01s03i236".
+    varname: str | list[str]
+        CF compliant name(s) of variable, or a UM STASH code such as "m01s03i236".
 
     Returns
     -------
     varname_constraint: iris.Constraint
-        If a UM STASHcode is requested, varname constraint is by STASHcode
+        If a single UM STASHcode is requested, varname constraint is by STASHcode
         If a single variable name is requested, constraint by varname
         If multiple variable names are requested, constrain by list of variables.
     """
-# Case 1: UM STASHcode input
-if _STASH_RE.match(varname):
-    return iris.AttributeConstraint(STASH=varname)
-    
-# Ensure access to variable vector components for computed fields
-if "wind_speed_at_10m" in iter_maybe(varname):
-    varname = [varname]
-    varname.extend(["eastward_wind_at_10m", "northward_wind_at_10m"])
+    # Case 1: UM STASHcode input
+    if isinstance(varname, str) and _STASH_RE.match(varname):
+        return iris.AttributeConstraint(STASH=varname)
 
-# Case 2: Multiple varnames
-if isinstance(varname, (list, tuple)):
-    varname_constraint = iris.Constraint(
-        cube_func=lambda cube: (
-            cube.long_name in varname
-            or cube.standard_name in varname
-            or cube.var_name in varname
+    # Ensure access to variable vector components for computed fields
+    if "wind_speed_at_10m" in iter_maybe(varname):
+        varname = [varname]
+        varname.extend(["eastward_wind_at_10m", "northward_wind_at_10m"])
+
+    # Case 2: Multiple varnames
+    if isinstance(varname, (list, tuple)):
+        varname_constraint = iris.Constraint(
+            cube_func=lambda cube: (
+                cube.long_name in varname
+                or cube.standard_name in varname
+                or cube.var_name in varname
+            )
         )
-    )
 
-else:
-    varname_constraint = iris.Constraint(name=varname)
+    else:
+        varname_constraint = iris.Constraint(name=varname)
 
-return varname_constraint
+    return varname_constraint
 
 
 def generate_level_constraint(
