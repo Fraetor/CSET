@@ -51,18 +51,18 @@ def test_sensible_heat_flux_core_calculation():
     """Compute sensible heat flux from covariance, temperature and pressure."""
     wT = _make_scalar_cube(
         0.1,
-        "wt_covariance_2m",
+        "wt_covariance",
         units=Unit("K m s-1"),
     )
     temp = _make_scalar_cube(
         20.0,
-        "air_temperature_rtd_1p2m",
+        "air_temperature",
         units=Unit("degC"),
         standard_name="air_temperature",
     )
     pressure = _make_scalar_cube(
         1000.0,
-        "surface_pressure",
+        "surface_air_pressure",
         units=Unit("hPa"),
     )
     out = fluxes.sensible_heat_flux_from_covariance(
