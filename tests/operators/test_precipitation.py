@@ -304,6 +304,16 @@ def test_convert_basic_with_bounds():
     np.testing.assert_allclose(result.data, expected)
 
 
+def test_convert_cm_accumulation():
+    """Centimetre rainfall accumulations are scaled correctly."""
+    bounds = np.array([[0, 1]])
+    time = _make_time_coord([0.5], bounds=bounds)
+    cube = _make_cube([1.0], "cm", time)
+    result = precipitation.convert_rainfall_depth_to_rate(cube)
+    expected = np.array([10.0]) / 3600.0  # 1 cm = 10 mm
+    np.testing.assert_allclose(result.data, expected)
+
+
 def test_skip_non_accumulation_or_rate():
     """Non-accumulation and already-rate cubes are left unchanged."""
     time = _make_time_coord([0, 1])
