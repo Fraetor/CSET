@@ -61,42 +61,26 @@ def load(conf: Config):
             conf.SPATIAL_SURFACE_FIELD_METHOD,
             scores_spatial_methods,
         ):
+            preserved_coords = ["time", "grid_latitude", "grid_longitude"]
             if scores_method == "RMSE" and method == "MEAN":
-                yield RawRecipe(
-                    recipe=f"surface_difference_scores_MEAN_{scores_method}.yaml",
-                    variables={
-                        "VARNAME": field,
-                        "BASE_MODEL": base_model["name"],
-                        "OTHER_MODEL": model["name"],
-                        "METHOD": method,
-                        "SUBAREA_TYPE": conf.SUBAREA_TYPE
-                        if conf.SELECT_SUBAREA
-                        else None,
-                        "SUBAREA_EXTENT": conf.SUBAREA_EXTENT
-                        if conf.SELECT_SUBAREA
-                        else None,
-                    },
-                    model_ids=[base_model["id"], model["id"]],
-                    aggregation=False,
-                )
-            else:
-                yield RawRecipe(
-                    recipe=f"surface_difference_scores_{scores_method}.yaml",
-                    variables={
-                        "VARNAME": field,
-                        "BASE_MODEL": base_model["name"],
-                        "OTHER_MODEL": model["name"],
-                        "METHOD": method,
-                        "SUBAREA_TYPE": conf.SUBAREA_TYPE
-                        if conf.SELECT_SUBAREA
-                        else None,
-                        "SUBAREA_EXTENT": conf.SUBAREA_EXTENT
-                        if conf.SELECT_SUBAREA
-                        else None,
-                    },
-                    model_ids=[base_model["id"], model["id"]],
-                    aggregation=False,
-                )
+                preserved_coords = ["grid_latitude", "grid_longitude"]
+                method = ""
+            yield RawRecipe(
+                recipe=f"surface_difference_scores_{scores_method}.yaml",
+                variables={
+                    "VARNAME": field,
+                    "BASE_MODEL": base_model["name"],
+                    "OTHER_MODEL": model["name"],
+                    "METHOD": method,
+                    "PRESERVED_COORDS": preserved_coords,
+                    "SUBAREA_TYPE": conf.SUBAREA_TYPE if conf.SELECT_SUBAREA else None,
+                    "SUBAREA_EXTENT": conf.SUBAREA_EXTENT
+                    if conf.SELECT_SUBAREA
+                    else None,
+                },
+                model_ids=[base_model["id"], model["id"]],
+                aggregation=False,
+            )
 
     scores_timeseries_methods = _get_scores_timeseries_methods(conf)
     if scores_timeseries_methods:
