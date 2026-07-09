@@ -319,7 +319,8 @@ def convert_rainfall_depth_to_rate(cubes, **kwargs):
     Notes
     -----
     - Conversion relies on the equivalence:
-      1 mm of rainfall ≡ 1 kg m-2
+         1 mm of rainfall ≡ 1 kg m-2
+    - iris does not know that mm = kg m-2
 
     - Unit handling:
         * Cubes already in rate units (convertible to kg m-2 s-1) are left unchanged
@@ -333,16 +334,12 @@ def convert_rainfall_depth_to_rate(cubes, **kwargs):
         The duration array is reshaped to match the time dimension of the cube
         before division.
 
-    - The operation is applied in-place to cube data.
-
     Examples
     --------
     >>> rate = precipitation.convert_rainfall_depth_to_rate(cube)
     >>> rate_list = precipitation.convert_rainfall_depth_to_rate(cube_list)
     """
-    from cf_units import (
-        Unit as CFUnit,  # if needed elsewhere; not strictly needed below
-    )
+    from cf_units import Unit
 
     cubes_list = iris.cube.CubeList(iter_maybe(cubes))
 
@@ -382,7 +379,7 @@ def convert_rainfall_depth_to_rate(cubes, **kwargs):
         units = time_coord.units
         if units.is_time_reference():
             base_unit = str(units).split(" since ")[0].strip()
-            duration = CFUnit(base_unit).convert(duration, "seconds")
+            duration = Unit(base_unit).convert(duration, "seconds")
         else:
             duration = units.convert(duration, "seconds")
 
@@ -390,12 +387,16 @@ def convert_rainfall_depth_to_rate(cubes, **kwargs):
             raise ValueError("Non-positive rainfall accumulation interval detected.")
 
         # Normalise rainfall accumulation units before dividing
+        # e.g. if rainfall amount is in cm, then the conversion will still work
+
+        data = cube.lazy_data()
+
         if is_depth_accum:
-            # e.g. mm -> mm
-            cube.data = cube.units.convert(cube.data, "mm")
+            factor = cube.units.convert(1.0, "mm")
+            data = data * factor
         else:
-            # e.g. kg m-2 -> kg m-2
-            cube.data = cube.units.convert(cube.data, "kg m-2")
+            factor = cube.units.convert(1.0, "kg m-2")
+            data = data * factor
 
         # Reshape duration for broadcasting along time dimension
         reshape = [1] * cube.ndim
@@ -403,9 +404,10 @@ def convert_rainfall_depth_to_rate(cubes, **kwargs):
         reshape[time_dim] = -1
         duration = duration.reshape(reshape)
 
-        # Convert depth/amount to rate
+        # Convert depth(amount) to rate
         # Numerically: mm s-1 == kg m-2 s-1
-        cube.data = cube.data / duration
+        data = data / duration
+        cube = cube.copy(data=data)
         cube.units = "kg m-2 s-1"
 
     return cubes_list[0] if isinstance(cubes, iris.cube.Cube) else cubes_list

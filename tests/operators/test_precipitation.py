@@ -282,6 +282,18 @@ def _make_cube(data, units, time_coord):
     return cube
 
 
+def test_convert_mass_accumulation():
+    """Kg m-2 accumulations convert correctly."""
+    bounds = np.array([[0, 1], [1, 2]])
+    time = _make_time_coord([0.5, 1.5], bounds=bounds)
+    cube = _make_cube([1.0, 2.0], "kg m-2", time)
+    result = precipitation.convert_rainfall_depth_to_rate(cube)
+    expected = np.array([1.0, 2.0]) / 3600.0
+
+    np.testing.assert_allclose(result.data, expected)
+    assert str(result.units) == "kg m-2 s-1"
+
+
 def test_convert_basic_with_bounds():
     """Basic accumulation → rate conversion works."""
     bounds = np.array([[0, 1], [1, 2]])
