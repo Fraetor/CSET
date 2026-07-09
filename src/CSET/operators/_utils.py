@@ -570,8 +570,12 @@ def check_if_cylc_workflow() -> list:
         path as the second element, otherwise None.
 
     """
-    dataloc = os.environ["ROSE_DATAC"] + "/data/1/"
-    if os.path.isdir(dataloc):
-        return [True, dataloc]
-    else:
+    # Standard location of ROSE_DATAC data dir in CSET.
+    try:
+        dataloc = os.environ["ROSE_DATAC"] + "/data/1/"
+        if os.path.isdir(dataloc):
+            return [True, dataloc]
+        else:
+            return [False, None]
+    except KeyError:
         return [False, None]
