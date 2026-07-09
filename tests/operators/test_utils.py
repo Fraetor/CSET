@@ -14,6 +14,7 @@
 
 """Tests for common operator functionality across CSET."""
 
+import os
 from datetime import timedelta
 
 import iris
@@ -654,3 +655,26 @@ def test_valid_sequence_coord_not_in_cube(cube):
     """Check that error raised if sequence coordinate not in cube."""
     with pytest.raises(ValueError, match="Cube must have a dummy coordinate"):
         operator_utils.check_sequence_coordinate(cube, "dummy")
+
+
+def test_check_if_cylc_workflow_true(monkeypatch, tmp_path):
+    """Check that running in CYLC returns True and Path."""
+    # Create dummy environment variable
+    monkeypatch.setenv("ROSE_DATAC", str(tmp_path))
+    os.makedirs(str(tmp_path) + "/data/1/")
+    print("ROSE_DATAC =", os.environ.get("ROSE_DATAC"))
+
+    assert operator_utils.check_if_cylc_workflow() == [True, str(tmp_path) + "/data/1/"]
+
+
+def test_check_if_cylc_workflow_no_dir(monkeypatch, tmp_path):
+    """Test key present but no dir.."""
+    # Create dummy environment variable
+    monkeypatch.setenv("ROSE_DATAC", str(tmp_path))
+
+    assert operator_utils.check_if_cylc_workflow() == [False, None]
+
+
+def test_check_if_cylc_workflow_false(monkeypatch, tmp_path):
+    """Check that read invokes the regrid."""
+    assert operator_utils.check_if_cylc_workflow() == [False, None]
