@@ -342,7 +342,7 @@ def convert_rainfall_depth_to_rate(cubes, **kwargs):
     from cf_units import Unit
 
     cubes_list = iris.cube.CubeList(iter_maybe(cubes))
-
+    output = iris.cube.CubeList()
     for cube in cubes_list:
         # Identify input type
         is_rate = cube.units.is_convertible("kg m-2 s-1") or cube.units.is_convertible(
@@ -352,9 +352,8 @@ def convert_rainfall_depth_to_rate(cubes, **kwargs):
         is_depth_accum = cube.units.is_convertible("mm")
 
         # Skip rates and unrelated variables
-        if is_rate:
-            continue
-        if not (is_mass_accum or is_depth_accum):
+        if is_rate or not (is_mass_accum or is_depth_accum):
+            output.append(cube)
             continue
 
         # Time coordinate is required for rainfall accumulations
@@ -407,7 +406,8 @@ def convert_rainfall_depth_to_rate(cubes, **kwargs):
         # Convert depth(amount) to rate
         # Numerically: mm s-1 == kg m-2 s-1
         data = data / duration
-        cube = cube.copy(data=data)
-        cube.units = "kg m-2 s-1"
+        new_cube = cube.copy(data=data)
+        new_cube.units = "kg m-2 s-1"
+        output.append(new_cube)
 
-    return cubes_list[0] if isinstance(cubes, iris.cube.Cube) else cubes_list
+    return output[0] if isinstance(cubes, iris.cube.Cube) else output
