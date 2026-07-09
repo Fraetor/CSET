@@ -20,6 +20,7 @@ operator, and will be used across multiple operators.
 """
 
 import logging
+import os
 import re
 from datetime import timedelta
 
@@ -554,3 +555,23 @@ def validate_cubes_coords(
             f"Check that number of time entries in input data are consistent if "
             f"performing time-averaging steps prior to plotting outputs."
         )
+
+
+def check_if_cylc_workflow() -> list:
+    """Determine if we are running in a CYLC workflow.
+
+    If running in a CYLC workflow, the ROSE_DATAC environment variable
+    will be set.
+
+    Returns
+    -------
+    list:
+        A python list containing a bool if the path exists, and if so, the
+        path as the second element, otherwise None.
+
+    """
+    dataloc = os.environ["ROSE_DATAC"] + "/data/1/"
+    if os.path.isdir(dataloc):
+        return [True, dataloc]
+    else:
+        return [False, None]
