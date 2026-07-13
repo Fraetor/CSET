@@ -63,6 +63,8 @@ def load(conf: Config):
         ):
             preserved_coords = ["time", "grid_latitude", "grid_longitude"]
             if scores_method == "RMSE" and method == "MEAN":
+                # Set the preserved coords and collapse method required
+                # to produce RMSE spatial plot over an entire case study.
                 preserved_coords = ["grid_latitude", "grid_longitude"]
                 method = ""
             yield RawRecipe(
