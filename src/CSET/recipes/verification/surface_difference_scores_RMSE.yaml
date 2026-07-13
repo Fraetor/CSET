@@ -13,6 +13,9 @@ description: |
   information about where the differences are, or if placement errors
   are domininating the score (usually indicated by dipoles).
 
+  TODO - total RMSE over case study
+
+
 steps:
   - operator: read.read_cubes
     file_paths: $INPUT_PATHS
