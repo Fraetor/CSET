@@ -197,11 +197,22 @@ def _setup_spatial_map(
             )
             crs = projection
         else:
+            # Assume polar projection for regional grids encompassing N. Pole
+            if y1 > 20.0 and y2 > 80.0:
+                projection = ccrs.NorthPolarStereo(central_longitude=0.0)
+            elif y1 < -80.0 and y2 < -20.0:
+                projection = ccrs.SouthPolarStereo(central_longitude=central_longitude)
             # Define regular map projection for non-rotated pole inputs.
             # Alternatives might include e.g. for global model outputs:
             #    projection=ccrs.Robinson(central_longitude=X.y, globe=None)
+            #    projection = ccrs.NearsidePerspective(
+            #        central_longitude=180.0,
+            #        central_latitude=0,
+            #        satellite_height=35785831,
+            #    )
             # See also https://scitools.org.uk/cartopy/docs/v0.15/crs/projections.html.
-            projection = ccrs.PlateCarree(central_longitude=central_longitude)
+            else:
+                projection = ccrs.PlateCarree(central_longitude=central_longitude)
             crs = ccrs.PlateCarree()
 
         # Define axes for plot (or subplot) with required map projection.
@@ -213,8 +224,8 @@ def _setup_spatial_map(
             axes = figure.add_subplot(projection=projection)
 
         # Add coastlines and borderlines if cube contains x and y map coordinates.
-        # Avoid adding lines for masked data or specific fixed ancillary spatial plots.
-        if iris.util.is_masked(cube.data) or any(
+        # Avoid adding lines for 2D masked data or specific fixed ancillary spatial plots.
+        if (cube.ndim > 1 and iris.util.is_masked(cube.data)) or any(
             name in cube.name() for name in ["land_", "orography", "altitude"]
         ):
             pass
@@ -224,8 +235,8 @@ def _setup_spatial_map(
             else:
                 coastcol = "black"
             logging.debug("Plotting coastlines and borderlines in colour %s.", coastcol)
-            axes.coastlines(resolution="10m", color=coastcol)
-            axes.add_feature(cfeature.BORDERS, edgecolor=coastcol)
+            axes.coastlines(resolution="10m", color=coastcol, alpha=0.8)
+            axes.add_feature(cfeature.BORDERS, edgecolor=coastcol, alpha=0.3)
 
         # Add gridlines.
         gl = axes.gridlines(
@@ -929,7 +940,7 @@ def _plot_and_save_line_series(
             for (handle, label) in zip(*ax.get_legend_handles_labels(), strict=True)
         }.values()
     )
-    ax.legend(handles=handles, loc="best", ncol=1, frameon=False, fontsize=16)
+    ax.legend(handles=handles, loc="best", ncol=1, frameon=True, fontsize=16)
 
     # Save plot.
     fig.savefig(filename, bbox_inches="tight", dpi=_get_plot_resolution())
@@ -1054,7 +1065,7 @@ def _plot_and_save_line_power_spectrum_series(
             for (handle, label) in zip(*ax.get_legend_handles_labels(), strict=True)
         }.values()
     )
-    ax.legend(handles=handles, loc="best", ncol=1, frameon=False, fontsize=16)
+    ax.legend(handles=handles, loc="best", ncol=1, frameon=True, fontsize=16)
 
     # Save plot.
     fig.savefig(filename, bbox_inches="tight", dpi=_get_plot_resolution())
@@ -1196,7 +1207,7 @@ def _plot_and_save_vertical_line_series(
             for (handle, label) in zip(*ax.get_legend_handles_labels(), strict=True)
         }.values()
     )
-    ax.legend(handles=handles, loc="best", ncol=1, frameon=False, fontsize=16)
+    ax.legend(handles=handles, loc="best", ncol=1, frameon=True, fontsize=16)
 
     # Save plot.
     fig.savefig(filename, bbox_inches="tight", dpi=_get_plot_resolution())
@@ -1491,7 +1502,7 @@ def _plot_and_save_histogram_series(
     # Overlay grid-lines onto histogram plot.
     ax.grid(linestyle="--", color="grey", linewidth=1)
     if model_colors_map:
-        ax.legend(loc="best", ncol=1, frameon=False, fontsize=16)
+        ax.legend(loc="best", ncol=1, frameon=True, fontsize=16)
 
     # Save plot.
     fig.savefig(filename, bbox_inches="tight", dpi=_get_plot_resolution())
@@ -1718,10 +1729,11 @@ def _spatial_plot(
     TypeError
         If the cube isn't a single cube.
     """
-    recipe_title = get_recipe_metadata().get("title", "Untitled")
-
     # Ensure we've got a single cube.
     cube = check_single_cube(cube)
+
+    # Set title based on recipe metadata or use cube name
+    recipe_title = get_recipe_metadata().get("title", cube.name())
 
     # Check if there is a valid stamp coordinate in cube dimensions.
     if stamp_coordinate == "realization":
@@ -2007,7 +2019,7 @@ def plot_line_series(
         If the cube isn't a Cube or CubeList.
     """
     # Ensure we have a name for the plot file.
-    recipe_title = get_recipe_metadata().get("title", "Untitled")
+    recipe_title = get_recipe_metadata().get("title", iter_maybe(cube)[0].name())
 
     num_models = get_num_models(cube)
 
@@ -2205,7 +2217,7 @@ def plot_vertical_line_series(
         If the cube isn't a Cube or CubeList.
     """
     # Ensure we have a name for the plot file.
-    recipe_title = get_recipe_metadata().get("title", "Untitled")
+    recipe_title = get_recipe_metadata().get("title", iter_maybe(cubes)[0].name())
 
     cubes = iter_maybe(cubes)
     # Initialise empty list to hold all data from all cubes in a CubeList
@@ -2433,7 +2445,7 @@ def qq_plot(
     )
 
     # Ensure we have a name for the plot file.
-    recipe_title = get_recipe_metadata().get("title", "Untitled")
+    recipe_title = get_recipe_metadata().get("title", "QQ_plot")
     title = f"{recipe_title}"
 
     if filename is None:
@@ -2512,7 +2524,7 @@ def scatter_plot(
             raise ValueError("cube_y must be 1D.")
 
     # Ensure we have a name for the plot file.
-    recipe_title = get_recipe_metadata().get("title", "Untitled")
+    recipe_title = get_recipe_metadata().get("title", "Scatter_plot")
     title = f"{recipe_title}"
 
     if filename is None:
@@ -2541,7 +2553,7 @@ def vector_plot(
     **kwargs,
 ) -> iris.cube.CubeList:
     """Plot a vector plot based on the input u and v components."""
-    recipe_title = get_recipe_metadata().get("title", "Untitled")
+    recipe_title = get_recipe_metadata().get("title", "Vector_plot")
 
     # Cubes must have a matching sequence coordinate.
     try:
@@ -2638,7 +2650,7 @@ def plot_histogram_series(
     TypeError
         If the cube isn't a Cube or CubeList.
     """
-    recipe_title = get_recipe_metadata().get("title", "Untitled")
+    recipe_title = get_recipe_metadata().get("title", "Histogram")
 
     cubes = iter_maybe(cubes)
     # Ensure we have a name for the plot file.
@@ -2845,7 +2857,7 @@ def _plot_and_save_postage_stamp_power_spectrum_series(
                 for (handle, label) in zip(*ax.get_legend_handles_labels(), strict=True)
             }.values()
         )
-        ax.legend(handles=handles, loc="best", ncol=1, frameon=False, fontsize=16)
+        ax.legend(handles=handles, loc="best", ncol=1, frameon=True, fontsize=16)
 
         ax = plt.gca()
         ax.set_title(f"Member #{member.coord(stamp_coordinate).points[0]}")
@@ -2975,10 +2987,7 @@ def _plot_and_save_postage_stamps_in_single_plot_power_spectrum_series(
             for (handle, label) in zip(*ax.get_legend_handles_labels(), strict=True)
         }.values()
     )
-    ax.legend(handles=handles, loc="best", ncol=1, frameon=False, fontsize=16)
-
-    # Add a legend
-    ax.legend(fontsize=16)
+    ax.legend(handles=handles, loc="best", ncol=1, frameon=True, fontsize=16)
 
     # Figure title.
     ax.set_title(title, fontsize=16)
