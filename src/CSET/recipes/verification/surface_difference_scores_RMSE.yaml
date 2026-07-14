@@ -13,8 +13,9 @@ description: |
   information about where the differences are, or if placement errors
   are domininating the score (usually indicated by dipoles).
 
-  TODO - total RMSE over case study
-
+  For RMSE values computed across an entire casse study, the computation
+  is done within the scores RMSE module, rather than trying to mean across
+  each timestep. This preserves the nonlinear nature of the RMSE metric.
 
 steps:
   - operator: read.read_cubes
