@@ -17,6 +17,7 @@
 https://docs.pytest.org/en/latest/reference/fixtures.html#conftest-py-sharing-fixtures-across-multiple-files
 """
 
+import shutil
 import subprocess
 from collections.abc import Callable
 from pathlib import Path
@@ -105,6 +106,18 @@ def tmp_working_dir(tmp_path, monkeypatch) -> Path:
     """Change the working directory for a test."""
     monkeypatch.chdir(tmp_path)
     return tmp_path
+
+
+@pytest.fixture()
+def workflow(tmp_path) -> Path:
+    """Extract a fresh workflow."""
+    subprocess.run(["cset", "extract-workflow", str(tmp_path)], check=True)
+    workflow_dir: Path = next(tmp_path.glob("cset-workflow-v*"))
+    # Copy example configuration into place.
+    shutil.copyfile(
+        workflow_dir / "rose-suite.conf.example", workflow_dir / "rose-suite.conf"
+    )
+    return workflow_dir
 
 
 # Session scope fixtures, so the test data only has to be loaded from disk
@@ -660,3 +673,361 @@ def precalc_maul_depth_5d_read_only():
 def precalc_maul_depth_5d(precalc_maul_depth_5d_read_only):
     """Get precalculated depth for 5D data. It is safe to modify."""
     return precalc_maul_depth_5d_read_only.copy()
+
+
+@pytest.fixture()
+def mr_3d_read_only():
+    """Get mixing ratio 3D data. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/humidity/mr_basic.nc")
+
+
+@pytest.fixture()
+def mr_3d(mr_3d_read_only):
+    """Get mixing ratio 3D data. It is safe to modify."""
+    return mr_3d_read_only.copy()
+
+
+@pytest.fixture()
+def mr_time_read_only():
+    """Get mixing ratio 4D data varying in time. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/humidity/mr_time.nc")
+
+
+@pytest.fixture()
+def mr_time(mr_time_read_only):
+    """Get mixing ratio 4D data varying in time. It is safe to modify."""
+    return mr_time_read_only.copy()
+
+
+@pytest.fixture()
+def mr_member_read_only():
+    """Get mixing ratio 4D data varying in member. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/humidity/mr_member.nc")
+
+
+@pytest.fixture()
+def mr_member(mr_member_read_only):
+    """Get mixing ratio 4D data varying in member. It is safe to modify."""
+    return mr_member_read_only.copy()
+
+
+@pytest.fixture()
+def mr_5d_read_only():
+    """Get mixing ratio 5D data. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/humidity/mr_all.nc")
+
+
+@pytest.fixture()
+def mr_5d(mr_5d_read_only):
+    """Get mixing ratio 5D data. It is safe to modify."""
+    return mr_5d_read_only.copy()
+
+
+@pytest.fixture()
+def rh_3d_read_only():
+    """Get relative humidity 3D data. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/humidity/rh_basic.nc")
+
+
+@pytest.fixture()
+def rh_3d(rh_3d_read_only):
+    """Get relative humidity 3D data. It is safe to modify."""
+    return rh_3d_read_only.copy()
+
+
+@pytest.fixture()
+def rh_time_read_only():
+    """Get relative humidity 4D data varying in time. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/humidity/rh_time.nc")
+
+
+@pytest.fixture()
+def rh_time(rh_time_read_only):
+    """Get relative humidity 4D data varying in time. It is safe to modify."""
+    return rh_time_read_only.copy()
+
+
+@pytest.fixture()
+def rh_member_read_only():
+    """Get relative humidity 4D data varying in member. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/humidity/rh_member.nc")
+
+
+@pytest.fixture()
+def rh_member(rh_member_read_only):
+    """Get relative humidity 4D data varying in member. It is safe to modify."""
+    return rh_member_read_only.copy()
+
+
+@pytest.fixture()
+def rh_5d_read_only():
+    """Get relative humidity 5D data. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/humidity/rh_all.nc")
+
+
+@pytest.fixture()
+def rh_5d(rh_5d_read_only):
+    """Get relative humidity 5D data. It is safe to modify."""
+    return rh_5d_read_only.copy()
+
+
+@pytest.fixture()
+def pw_3d_read_only():
+    """Get precipitable water 3D data. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/humidity/pw_basic.nc")
+
+
+@pytest.fixture()
+def pw_3d(pw_3d_read_only):
+    """Get precipitable water 3D data. It is safe to modify."""
+    return pw_3d_read_only.copy()
+
+
+@pytest.fixture()
+def pw_time_read_only():
+    """Get precipitable water 4D data varying in time. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/humidity/pw_time.nc")
+
+
+@pytest.fixture()
+def pw_time(pw_time_read_only):
+    """Get precipitable water 4D data varying in time. It is safe to modify."""
+    return pw_time_read_only.copy()
+
+
+@pytest.fixture()
+def pw_member_read_only():
+    """Get precipitable water 4D data varying in member. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/humidity/pw_member.nc")
+
+
+@pytest.fixture()
+def pw_member(pw_member_read_only):
+    """Get precipitable water 4D data varying in member. It is safe to modify."""
+    return pw_member_read_only.copy()
+
+
+@pytest.fixture()
+def pw_5d_read_only():
+    """Get precipitable water 5D data. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/humidity/pw_all.nc")
+
+
+@pytest.fixture()
+def pw_5d(pw_5d_read_only):
+    """Get precipitable water 5D data. It is safe to modify."""
+    return pw_5d_read_only.copy()
+
+
+@pytest.fixture()
+def spw_3d_read_only():
+    """Get saturation precipitable water 3D data. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/humidity/spw_basic.nc")
+
+
+@pytest.fixture()
+def spw_3d(spw_3d_read_only):
+    """Get saturation precipitable water 3D data. It is safe to modify."""
+    return spw_3d_read_only.copy()
+
+
+@pytest.fixture()
+def spw_time_read_only():
+    """Get saturation precipitable water 4D data varying in time. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/humidity/spw_time.nc")
+
+
+@pytest.fixture()
+def spw_time(spw_time_read_only):
+    """Get saturation precipitable water 4D data varying in time. It is safe to modify."""
+    return spw_time_read_only.copy()
+
+
+@pytest.fixture()
+def spw_member_read_only():
+    """Get saturation precipitable water 4D data varying in member. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/humidity/spw_member.nc")
+
+
+@pytest.fixture()
+def spw_member(spw_member_read_only):
+    """Get saturation precipitable water 4D data varying in member. It is safe to modify."""
+    return spw_member_read_only.copy()
+
+
+@pytest.fixture()
+def spw_5d_read_only():
+    """Get saturation precipitable water 5D data. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/humidity/spw_all.nc")
+
+
+@pytest.fixture()
+def spw_5d(spw_5d_read_only):
+    """Get saturation precipitable water 5D data. It is safe to modify."""
+    return spw_5d_read_only.copy()
+
+
+@pytest.fixture()
+def sf_3d_read_only():
+    """Get saturation fraction 3D data. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/humidity/sf_basic.nc")
+
+
+@pytest.fixture()
+def sf_3d(sf_3d_read_only):
+    """Get saturation fraction 3D data. It is safe to modify."""
+    return sf_3d_read_only.copy()
+
+
+@pytest.fixture()
+def u_wind_maul_all_read_only():
+    """Get u wind for 5D data. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/precipitation/u_wind_all.nc")
+
+
+@pytest.fixture()
+def u_wind_maul_all(u_wind_maul_all_read_only):
+    """Get u wind for 5D data. It is safe to modify."""
+    return u_wind_maul_all_read_only.copy()
+
+
+@pytest.fixture()
+def u_wind_maul_time_read_only():
+    """Get u wind for 4D data varying in time. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/precipitation/u_wind_time.nc")
+
+
+@pytest.fixture()
+def u_wind_maul_time(u_wind_maul_time_read_only):
+    """Get v wind for 4D data varying in time. It is safe to modify."""
+    return u_wind_maul_time_read_only.copy()
+
+
+@pytest.fixture()
+def u_wind_maul_member_read_only():
+    """Get u wind for 4D data varying in realization. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/precipitation/u_wind_member.nc")
+
+
+@pytest.fixture()
+def u_wind_maul_member(u_wind_maul_member_read_only):
+    """Get u wind for 4D data varying in realization. It is safe to modify."""
+    return u_wind_maul_member_read_only.copy()
+
+
+@pytest.fixture()
+def u_wind_maul_read_only():
+    """Get u wind for 3D data. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/precipitation/u_wind_basic.nc")
+
+
+@pytest.fixture()
+def u_wind_maul(u_wind_maul_read_only):
+    """Get u wind for 3D data. It is safe to modify."""
+    return u_wind_maul_read_only.copy()
+
+
+@pytest.fixture()
+def v_wind_maul_all_read_only():
+    """Get v wind for 5D data. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/precipitation/v_wind_all.nc")
+
+
+@pytest.fixture()
+def v_wind_maul_all(v_wind_maul_all_read_only):
+    """Get pv wind for 5D data. It is safe to modify."""
+    return v_wind_maul_all_read_only.copy()
+
+
+@pytest.fixture()
+def v_wind_maul_time_read_only():
+    """Get v wind for 4D data varying in time. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/precipitation/u_wind_time.nc")
+
+
+@pytest.fixture()
+def v_wind_maul_time(v_wind_maul_time_read_only):
+    """Get v wind for 4D data varying in time. It is safe to modify."""
+    return v_wind_maul_time_read_only.copy()
+
+
+@pytest.fixture()
+def v_wind_maul_member_read_only():
+    """Get u wind for 4D data varying in realization. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/precipitation/v_wind_member.nc")
+
+
+@pytest.fixture()
+def v_wind_maul_member(v_wind_maul_member_read_only):
+    """Get v wind for 4D data varying in realization. It is safe to modify."""
+    return v_wind_maul_member_read_only.copy()
+
+
+@pytest.fixture()
+def v_wind_maul_read_only():
+    """Get u wind for 3D data. It is NOT safe to modify."""
+    return read.read_cube("tests/test_data/precipitation/v_wind_basic.nc")
+
+
+@pytest.fixture()
+def v_wind_maul(v_wind_maul_read_only):
+    """Get v wind for 3D data. It is safe to modify."""
+    return v_wind_maul_read_only.copy()
+
+
+@pytest.fixture()
+def precalc_wind_below_maul_read_only():
+    """Get precalculated wind below maul 3D data. It is NOT safe to modify."""
+    return read.read_cube(
+        "tests/test_data/precipitation/precalculated_wind_below_maul_3d.nc"
+    )
+
+
+@pytest.fixture()
+def precalc_wind_below_maul(precalc_wind_below_maul_read_only):
+    """Get precalculated wind below maul for 3D data. It is safe to modify."""
+    return precalc_wind_below_maul_read_only.copy()
+
+
+@pytest.fixture()
+def precalc_wind_below_maul_4d_time_read_only():
+    """Get precalculated wind below maul 4D data varying time. It is NOT safe to modify."""
+    return read.read_cube(
+        "tests/test_data/precipitation/precalculated_wind_below_maul_4d_time.nc"
+    )
+
+
+@pytest.fixture()
+def precalc_wind_below_maul_4d_time(precalc_wind_below_maul_4d_time_read_only):
+    """Get precalculated wind below maul for 4D data varying time. It is safe to modify."""
+    return precalc_wind_below_maul_4d_time_read_only.copy()
+
+
+@pytest.fixture()
+def precalc_wind_below_maul_4d_realization_read_only():
+    """Get precalculated wind below maul 4D data varying realization. It is NOT safe to modify."""
+    return read.read_cube(
+        "tests/test_data/precipitation/precalculated_wind_below_maul_4d_realization.nc"
+    )
+
+
+@pytest.fixture()
+def precalc_wind_below_maul_4d_realization(
+    precalc_wind_below_maul_4d_realization_read_only,
+):
+    """Get precalculated wind below maul for 4D data varying realization. It is safe to modify."""
+    return precalc_wind_below_maul_4d_realization_read_only.copy()
+
+
+@pytest.fixture()
+def precalc_wind_below_maul_5d_read_only():
+    """Get precalculated wind below maul 5D data. It is NOT safe to modify."""
+    return read.read_cube(
+        "tests/test_data/precipitation/precalculated_wind_below_maul_5d.nc"
+    )
+
+
+@pytest.fixture()
+def precalc_wind_below_maul_5d(precalc_wind_below_maul_5d_read_only):
+    """Get precalculated wind below maul for 5D data. It is safe to modify."""
+    return precalc_wind_below_maul_5d_read_only.copy()
