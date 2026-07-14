@@ -67,6 +67,11 @@ def load(conf: Config):
                 # to produce RMSE spatial plot over an entire case study.
                 preserved_coords = ["grid_latitude", "grid_longitude"]
                 method = ""
+            if scores_method == "MAE" and method == "MEAN":
+                # Set the preserved coords and collapse method required
+                # to produce MAE spatial plot over an entire case study.
+                preserved_coords = ["grid_latitude", "grid_longitude"]
+                method = ""
             yield RawRecipe(
                 recipe=f"surface_difference_scores_{scores_method}.yaml",
                 variables={
