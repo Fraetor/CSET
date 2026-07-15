@@ -23,6 +23,7 @@ import logging
 import os
 import re
 from datetime import timedelta
+from pathlib import Path
 
 import iris
 import iris.coords
@@ -557,25 +558,25 @@ def validate_cubes_coords(
         )
 
 
-def check_if_cylc_workflow() -> list:
-    """Determine if we are running in a CYLC workflow.
+def check_if_cylc_workflow() -> Path | None:
+    """Determine if we are running in a Cylc workflow.
 
-    If running in a CYLC workflow, the ROSE_DATAC environment variable
+    If running in a Cylc workflow, the ROSE_DATAC environment variable
     will be set.
 
     Returns
     -------
-    list:
-        A python list containing a bool if the path exists, and if so, the
-        path as the second element, otherwise None.
-
+    Path | None:
+        If ROSE_DATAC is set, and the path exists, return a Path object
+        containing the path. Otherwise, return None.
     """
     # Standard location of ROSE_DATAC data dir in CSET.
     try:
-        dataloc = os.environ["ROSE_DATAC"] + "/data/1/"
-        if os.path.isdir(dataloc):
-            return [True, dataloc]
-        else:
-            return [False, None]
+        dataloc = Path(os.environ["ROSE_DATAC"])
+        if dataloc.exists():
+            return dataloc
     except KeyError:
-        return [False, None]
+        pass
+
+    # If KeyError, or path does not exist, return None
+    return None
