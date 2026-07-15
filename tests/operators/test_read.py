@@ -1253,6 +1253,9 @@ def test_check_combine_point_observations_single_obs(cube):
     cube = collapse.collapse(cube, ["grid_longitude"], "MEAN")
     cube.coord("grid_latitude").rename("station")
     cube.coord("station").points = np.arange(len(cube.coord("station").points))
+    cube.add_aux_coord(
+        iris.coords.AuxCoord(cube.coord("station").points, var_name="obs_source"), 1
+    )
     c1 = iris.cube.CubeList([cube])
     c2 = read._check_combine_point_observations(c1)
     assert c2 == c1
@@ -1264,6 +1267,7 @@ def test_check_combine_point_observations_single_obs(cube):
             strict=True,
         )
     ]
+    assert "obs_source" not in [coord.name() for coord in cube.coords()]
 
 
 def test_check_combine_point_observations_multiple_obs(cube):
