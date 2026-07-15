@@ -334,15 +334,49 @@ def scores_additive_bias(
 ):
     """Calculate the Additive Bias (Mean Error) using scores."""
     base, other = _sort_cubes_for_verification(cubes)
+
+    # Copy the coordinates of the input cubes.
+    other_xr = xr.DataArray.from_iris(other)
+    base_xr = xr.DataArray.from_iris(base)
+    preserve_dims = _resolve_preserve_dims(other, other_xr, preserved_coordinates)
+
     # Scores operators on xarray data arrays, so we transform the iris cube into an array,
     # apply scores, and then transform it back.
     scores_cube = xr.DataArray.to_iris(
         scores.continuous.additive_bias(
-            xr.DataArray.from_iris(other),
-            xr.DataArray.from_iris(base),
-            preserve_dims=preserved_coordinates,
+            other_xr,
+            base_xr,
+            preserve_dims=preserve_dims,
         )
     )
+
+    # If time is aggregated out, attach a scalar time coordinate with bounds
+    # so plotting can display the aggregated period in the title.
+    try:
+        if not scores_cube.coords("time"):
+            base_time = base.coord("time")
+            time_vals = (
+                base_time.bounds.flatten()
+                if base_time.has_bounds()
+                else base_time.points
+            )
+            t_start = float(time_vals[0])
+            t_end = float(time_vals[-1])
+            t_mid = 0.5 * (t_start + t_end)
+
+            scores_cube.add_aux_coord(
+                iris.coords.AuxCoord(
+                    t_mid,
+                    standard_name=base_time.standard_name,
+                    long_name=base_time.long_name,
+                    var_name=base_time.var_name,
+                    units=base_time.units,
+                    bounds=np.array([t_start, t_end]),
+                    attributes=base_time.attributes.copy(),
+                )
+            )
+    except iris.exceptions.CoordinateNotFoundError:
+        pass
     scores_cube.rename(f"Additive_Bias_of_{base.name()}")
     return scores_cube
 
@@ -352,14 +386,49 @@ def scores_correlation_pearsonr(
 ):
     """Calculate the Pearson's Correlation using scores."""
     base, other = _sort_cubes_for_verification(cubes)
+
+    # Copy the coordinates of the input cubes.
+    other_xr = xr.DataArray.from_iris(other)
+    base_xr = xr.DataArray.from_iris(base)
+    preserve_dims = _resolve_preserve_dims(other, other_xr, preserved_coordinates)
+
     # Scores operators on xarray data arrays, so we transform the iris cube into an array,
     # apply scores, and then transform it back.
     scores_cube = xr.DataArray.to_iris(
         scores.continuous.correlation.pearsonr(
-            xr.DataArray.from_iris(other),
-            xr.DataArray.from_iris(base),
-            preserve_dims=preserved_coordinates,
+            other_xr,
+            base_xr,
+            preserve_dims=preserve_dims,
         )
     )
+
+    # If time is aggregated out, attach a scalar time coordinate with bounds
+    # so plotting can display the aggregated period in the title.
+    try:
+        if not scores_cube.coords("time"):
+            base_time = base.coord("time")
+            time_vals = (
+                base_time.bounds.flatten()
+                if base_time.has_bounds()
+                else base_time.points
+            )
+            t_start = float(time_vals[0])
+            t_end = float(time_vals[-1])
+            t_mid = 0.5 * (t_start + t_end)
+
+            scores_cube.add_aux_coord(
+                iris.coords.AuxCoord(
+                    t_mid,
+                    standard_name=base_time.standard_name,
+                    long_name=base_time.long_name,
+                    var_name=base_time.var_name,
+                    units=base_time.units,
+                    bounds=np.array([t_start, t_end]),
+                    attributes=base_time.attributes.copy(),
+                )
+            )
+    except iris.exceptions.CoordinateNotFoundError:
+        pass
+
     scores_cube.rename(f"Pearson_Correlation_of_{base.name()}")
     return scores_cube
