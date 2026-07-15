@@ -28,18 +28,9 @@ from CSET.cset_workflow.app.fetch_nimrod.bin.fetch_nimrod import (
     apply_radar_weights,
 )
 
-# Tests for apply_radar_weights
-# def make_cube(data):
-#    """Form a cube of test data from an array."""
-#    obs = Cube([[1.0, 2.0], [3.0, 4.0]])
-#    weights = Cube([[11, 12], [10, 13]])
-#    return SimpleNamespace(data=np.array(data))
-
 
 def test_apply_radar_weights_leaves_good_values_and_zeroes_bad():
     """Test that Nimrod weights are correctly applied to hourly rainfall accumulations."""
-    # obs = make_cube([[1.0, 2.0], [3.0, 4.0]])
-    # weights = make_cube([[11, 12], [10, 13]])
     obs = Cube([[1.0, 2.0], [3.0, 4.0]])
     weights = Cube([[11, 12], [10, 13]])
 
@@ -51,8 +42,6 @@ def test_apply_radar_weights_leaves_good_values_and_zeroes_bad():
 
 def test_apply_radar_weights_unpack_packed_weights():
     """Test that Nimrod weights are correctly unpacked."""
-    # obs = make_cube([[1.0, 2.0], [3.0, 4.0]])
-    # packed = make_cube([[13 / 32, 12 / 32], [10 / 32, 11 / 32]])
     obs = Cube([[1.0, 2.0], [3.0, 4.0]])
     packed = Cube([[13 / 32, 12 / 32], [10 / 32, 11 / 32]])
 
@@ -61,8 +50,6 @@ def test_apply_radar_weights_unpack_packed_weights():
     assert np.array_equal(wei_out.data, np.array([[13, 12], [10, 11]]))
     assert np.array_equal(obs_out.data, np.array([[1.0, 2.0], [0.0, 4.0]]))
 
-    # obs = make_cube([[1.0, 2.0], [3.0, 4.0]])
-    # packed = make_cube([[13, 12], [10, 11]])
     obs = Cube([[1.0, 2.0], [3.0, 4.0]])
     packed = Cube([[13, 12], [10, 11]])
 
