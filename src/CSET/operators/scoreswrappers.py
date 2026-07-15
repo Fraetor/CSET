@@ -151,7 +151,7 @@ def _resolve_preserve_dims(
     dimension names. In Iris data, commonly used coordinates such as ``time``
     may be auxiliary coordinates attached to a differently named dimension
     (e.g. ``dim0``). This helper maps coordinate names to their underlying
-    dimension names.
+    dimension names and helps to convert from iris to xarray coordinate dimension names.
     """
     if preserved_coordinates is None:
         return None
