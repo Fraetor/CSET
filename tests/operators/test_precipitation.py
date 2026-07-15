@@ -14,7 +14,7 @@
 
 """Test precipitation operators."""
 
-from pathlib import Path
+
 
 import cf_units
 import iris.cube
