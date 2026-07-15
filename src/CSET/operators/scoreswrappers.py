@@ -256,7 +256,7 @@ def scores_crps_for_ensemble(
         control_member = new_control_member
 
     if cubes.coord("time").shape[0] == 1:
-        raise ValueError("Cube has only one time coordinate.")
+        raise ValueError("Cube has only one time point.")
 
     if cubes.coord("realization").shape[0] < 3:
         raise ValueError("Cube should have one control member and at least two members")

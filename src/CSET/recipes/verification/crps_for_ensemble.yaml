@@ -5,6 +5,16 @@ description: |
   for all times. The CRPS is calculated based on that used in the
   package [`scores`](https://scores.readthedocs.io/en/stable/tutorials/CRPS_for_Ensembles.html).
 
+  Lower CRPS values are better (implies experiment distribution is closer to control distribution/observations),
+  larger values are worse (implies distributions are dissimilar).
+  It is applicable across time and spatial scales as the focus is on the distribution of the values.
+  Default method is ecdf.  ecdf is exact value from the empirical distributions,
+  whereas fair produces an approximated value based on a random sample of the underlying distribution.
+
+
+
+
+
 
 steps:
   - operator: read.read_cube
