@@ -23,7 +23,7 @@ import pytest
 
 from CSET.operators import precipitation
 
-DATA_DIR = Path(__file__).resolve().parent.parent / "test_data" / "rainfall"
+
 
 
 def test_maul_properties_wrong_output(maul_mask, u_wind_maul, v_wind_maul):
