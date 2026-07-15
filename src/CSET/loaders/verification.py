@@ -58,27 +58,27 @@ def load(conf: Config):
         for model, field, method, scores_method in itertools.product(
             models[1:],
             conf.SURFACE_FIELDS,
-            conf.SPATIAL_SURFACE_FIELD_METHOD,
+            conf.SPATIAL_SCORES_FIELD_METHOD,
             scores_spatial_methods,
         ):
             preserved_coords = ["time", "grid_latitude", "grid_longitude"]
             method_null = ""
-            scores_method_total = "MEAN"
-            scores_coords_total = ["grid_latitude", "grid_longitude"]
-            if scores_method == "RMSE" and method == scores_method_total:
+            scores_method_case = "CASE"
+            scores_coords_case = ["grid_latitude", "grid_longitude"]
+            if scores_method == "RMSE" and method == scores_method_case:
                 # Set the preserved coords and collapse method required
                 # to produce RMSE spatial plot over an entire case study.
-                preserved_coords = scores_coords_total
+                preserved_coords = scores_coords_case
                 method = method_null
-            if scores_method == "MAE" and method == scores_method_total:
+            if scores_method == "MAE" and method == scores_method_case:
                 # Set the preserved coords and collapse method required
                 # to produce MAE spatial plot over an entire case study.
-                preserved_coords = scores_coords_total
+                preserved_coords = scores_coords_case
                 method = method_null
-            if scores_method == "additive_bias" and method == scores_method_total:
+            if scores_method == "additive_bias" and method == scores_method_case:
                 # Set the preserved coords and collapse method required
                 # to produce ME additive bias spatial plot over an entire case study.
-                preserved_coords = scores_coords_total
+                preserved_coords = scores_coords_case
                 method = method_null
             yield RawRecipe(
                 recipe=f"surface_difference_scores_{scores_method}.yaml",
