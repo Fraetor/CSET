@@ -14,16 +14,12 @@
 
 """Test precipitation operators."""
 
-
-
 import cf_units
 import iris.cube
 import numpy as np
 import pytest
 
 from CSET.operators import precipitation
-
-
 
 
 def test_maul_properties_wrong_output(maul_mask, u_wind_maul, v_wind_maul):
