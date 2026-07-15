@@ -2519,9 +2519,11 @@ def hinton_plot(change, signif, xaxis_labels, yaxis_labels, magnitude=None):
         y += tri_height
         y_edges.append(y)
 
-        txt_y.append(y + txt_height / 2)
-        y += txt_height
-        y_edges.append(y)
+   if magnitude:
+       txt_y.append(y + txt_height / 2)
+       y += txt_height
+       y_edges.append(y)
+
 
     total_height = y
 
