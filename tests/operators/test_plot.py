@@ -1103,7 +1103,5 @@ def test_hinton_returns_figure_and_axes():
         xaxis_labels=["A", "B"],
         yaxis_labels=["Metric"],
     )
-
     assert fig is not None
     assert ax is not None
-
