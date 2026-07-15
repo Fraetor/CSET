@@ -100,7 +100,7 @@ def load(conf: Config):
 
     scores_timeseries_methods = _get_scores_timeseries_methods(conf)
     if scores_timeseries_methods:
-        # Produce timeseries plots of scores metrics averaged over the domain.
+        # Produce timeseries plots of scores metrics averaged over the domain for each case study.
         base_model = models[0]
         for model, field, scores_method in itertools.product(
             models[1:], conf.SURFACE_FIELDS, scores_timeseries_methods
