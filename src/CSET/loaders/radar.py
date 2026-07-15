@@ -172,6 +172,7 @@ def load(conf: Config):
                 "MODEL_NAME": [radar["name"] for radar in accum_radars],
                 "SUBAREA_TYPE": conf.SUBAREA_TYPE if conf.SELECT_SUBAREA else None,
                 "SUBAREA_EXTENT": conf.SUBAREA_EXTENT if conf.SELECT_SUBAREA else None,
+                "SUBAREA_NAME": conf.SUBAREA_NAME if conf.SELECT_SUBAREA else "",
             },
             aggregation=False,
         )
