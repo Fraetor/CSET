@@ -234,7 +234,7 @@ def scores_rmse(cubes: CubeList, preserved_coordinates: list[str] | str | None =
     base_xr = xr.DataArray.from_iris(base)
     preserve_dims = _resolve_preserve_dims(other, other_xr, preserved_coordinates)
 
-    # Scores operators on xarray data arrays, so we transform the iris cube into an array,
+    # Scores operates on xarray data arrays, so we transform the iris cube into an array,
     # apply scores, and then transform it back.
     scores_cube = xr.DataArray.to_iris(
         scores.continuous.rmse(
@@ -287,7 +287,7 @@ def scores_mae(cubes: CubeList, preserved_coordinates: list[str] | str | None = 
     base_xr = xr.DataArray.from_iris(base)
     preserve_dims = _resolve_preserve_dims(other, other_xr, preserved_coordinates)
 
-    # Scores operators on xarray data arrays, so we transform the iris cube into an array,
+    # Scores operates on xarray data arrays, so we transform the iris cube into an array,
     # apply scores, and then transform it back.
     scores_cube = xr.DataArray.to_iris(
         scores.continuous.mae(
@@ -340,7 +340,7 @@ def scores_additive_bias(
     base_xr = xr.DataArray.from_iris(base)
     preserve_dims = _resolve_preserve_dims(other, other_xr, preserved_coordinates)
 
-    # Scores operators on xarray data arrays, so we transform the iris cube into an array,
+    # Scores operates on xarray data arrays, so we transform the iris cube into an array,
     # apply scores, and then transform it back.
     scores_cube = xr.DataArray.to_iris(
         scores.continuous.additive_bias(
@@ -392,7 +392,7 @@ def scores_correlation_pearsonr(
     base_xr = xr.DataArray.from_iris(base)
     preserve_dims = _resolve_preserve_dims(other, other_xr, preserved_coordinates)
 
-    # Scores operators on xarray data arrays, so we transform the iris cube into an array,
+    # Scores operates on xarray data arrays, so we transform the iris cube into an array,
     # apply scores, and then transform it back.
     scores_cube = xr.DataArray.to_iris(
         scores.continuous.correlation.pearsonr(
