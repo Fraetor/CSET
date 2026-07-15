@@ -157,21 +157,21 @@ def _setup_spatial_map(
     # Identify min/max plot bounds.
     try:
         lat_axis, lon_axis = get_cube_yxcoordname(cube)
-        x1 = np.min(cube.coord(lon_axis).points)
-        x2 = np.max(cube.coord(lon_axis).points)
-        y1 = np.min(cube.coord(lat_axis).points)
-        y2 = np.max(cube.coord(lat_axis).points)
+        xmin = np.nanmin(cube.coord(lon_axis).points)
+        xmax = np.nanmax(cube.coord(lon_axis).points)
+        ymin = np.nanmin(cube.coord(lat_axis).points)
+        ymax = np.nanmax(cube.coord(lat_axis).points)
 
         # Adjust bounds within +/- 180.0 if x dimension extends beyond half-globe.
-        if np.abs(x2 - x1) > 180.0:
-            x1 = x1 - 180.0
-            x2 = x2 - 180.0
+        if np.abs(xmax - xmin) > 180.0:
+            xmin = xmin - 180.0
+            xmax = xmax - 180.0
             logging.debug("Adjusting plot bounds to fit global extent.")
 
         # Consider map projection orientation.
         # Adapting orientation enables plotting across international dateline.
         # Users can adapt the default central_longitude if alternative projections views.
-        if x2 > 180.0 or x1 < -180.0:
+        if xmax > 180.0 or xmin < -180.0:
             central_longitude = 180.0
         else:
             central_longitude = 0.0
@@ -198,9 +198,9 @@ def _setup_spatial_map(
             crs = projection
         else:
             # Assume polar projection for regional grids encompassing N. Pole
-            if y1 > 20.0 and y2 > 80.0:
+            if ymin > 20.0 and ymax > 80.0:
                 projection = ccrs.NorthPolarStereo(central_longitude=0.0)
-            elif y1 < -80.0 and y2 < -20.0:
+            elif ymin < -80.0 and ymax < -20.0:
                 projection = ccrs.SouthPolarStereo(central_longitude=central_longitude)
             # Define regular map projection for non-rotated pole inputs.
             # Alternatives might include e.g. for global model outputs:
@@ -259,7 +259,7 @@ def _setup_spatial_map(
         # If is lat/lon spatial map, fix extent to keep plot tight.
         # Specifying crs within set_extent helps ensure only data region is shown.
         if isinstance(coord_system, iris.coord_systems.GeogCS):
-            axes.set_extent([x1, x2, y1, y2], crs=crs)
+            axes.set_extent([xmin, xmax, ymin, ymax], crs=crs)
 
     except ValueError:
         # Skip if not both x and y map coordinates.
