@@ -6,6 +6,7 @@ description: |
   package [`scores`](https://scores.readthedocs.io/en/stable/api.html#scores.continuous.mean_error).
   This recipe preserves the time, latitude and longitude coordinates.
   This means a sequence of spatial plots of the ME can be produced.
+  Currently only working for deterministic models.
 
   A larger ME implies a greater error than a smaller ME. Although a near zero ME could be indicative
   of a good match between two fields, this could also arise if there are large compensating
