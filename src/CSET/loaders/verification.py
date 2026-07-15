@@ -62,16 +62,24 @@ def load(conf: Config):
             scores_spatial_methods,
         ):
             preserved_coords = ["time", "grid_latitude", "grid_longitude"]
-            if scores_method == "RMSE" and method == "MEAN":
+            method_null = ""
+            scores_method_total = "MEAN"
+            scores_coords_total = ["grid_latitude", "grid_longitude"]
+            if scores_method == "RMSE" and method == scores_method_total:
                 # Set the preserved coords and collapse method required
                 # to produce RMSE spatial plot over an entire case study.
-                preserved_coords = ["grid_latitude", "grid_longitude"]
-                method = ""
-            if scores_method == "MAE" and method == "MEAN":
+                preserved_coords = scores_coords_total
+                method = method_null
+            if scores_method == "MAE" and method == scores_method_total:
                 # Set the preserved coords and collapse method required
                 # to produce MAE spatial plot over an entire case study.
-                preserved_coords = ["grid_latitude", "grid_longitude"]
-                method = ""
+                preserved_coords = scores_coords_total
+                method = method_null
+            if scores_method == "additive_bias" and method == scores_method_total:
+                # Set the preserved coords and collapse method required
+                # to produce ME additive bias spatial plot over an entire case study.
+                preserved_coords = scores_coords_total
+                method = method_null
             yield RawRecipe(
                 recipe=f"surface_difference_scores_{scores_method}.yaml",
                 variables={
