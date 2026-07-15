@@ -14,8 +14,8 @@
 
 """Tests for common operator functionality across CSET."""
 
-import os
 from datetime import timedelta
+from pathlib import Path
 
 import iris
 import iris.coords
@@ -658,23 +658,21 @@ def test_valid_sequence_coord_not_in_cube(cube):
 
 
 def test_check_if_cylc_workflow_true(monkeypatch, tmp_path):
-    """Check that running in CYLC returns True and Path."""
+    """Check that running in Cylc returns True and Path."""
     # Create dummy environment variable
     monkeypatch.setenv("ROSE_DATAC", str(tmp_path))
-    os.makedirs(str(tmp_path) + "/data/1/")
-    print("ROSE_DATAC =", os.environ.get("ROSE_DATAC"))
 
-    assert operator_utils.check_if_cylc_workflow() == [True, str(tmp_path) + "/data/1/"]
+    assert operator_utils.check_if_cylc_workflow() == Path(tmp_path)
 
 
 def test_check_if_cylc_workflow_no_dir(monkeypatch, tmp_path):
-    """Test key present but no dir.."""
+    """Test ROSE_DATAC present but no dir."""
     # Create dummy environment variable
-    monkeypatch.setenv("ROSE_DATAC", str(tmp_path))
+    monkeypatch.setenv("ROSE_DATAC", str(tmp_path) + "/foo/")
 
-    assert operator_utils.check_if_cylc_workflow() == [False, None]
+    assert operator_utils.check_if_cylc_workflow() is None
 
 
 def test_check_if_cylc_workflow_false(monkeypatch, tmp_path):
-    """Check that read invokes the regrid."""
-    assert operator_utils.check_if_cylc_workflow() == [False, None]
+    """Test no ROSE_DATAC present."""
+    assert operator_utils.check_if_cylc_workflow() is None
