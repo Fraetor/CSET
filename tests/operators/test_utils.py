@@ -15,7 +15,6 @@
 """Tests for common operator functionality across CSET."""
 
 from datetime import timedelta
-from pathlib import Path
 
 import iris
 import iris.coords
@@ -667,7 +666,7 @@ def test_check_if_cylc_workflow_true(monkeypatch, tmp_path):
 
 def test_check_if_cylc_workflow_no_dir(monkeypatch, tmp_path):
     """Test ROSE_DATAC present but no dir."""
-    # Create dummy environment variable
+    # Create mock environment variable
     monkeypatch.setenv("ROSE_DATAC", str(tmp_path) + "/foo/")
 
     assert operator_utils.check_if_cylc_workflow() is None
