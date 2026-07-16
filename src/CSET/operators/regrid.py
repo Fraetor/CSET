@@ -454,25 +454,35 @@ def interpolate_to_point_cube(
             raise ValueError("No common time points found!")
 
         # Generate array of point cube lat and lon points.
-        lat_name, lon_name = get_cube_yxcoordname(point_cube)
-        lats = point_cube.coord(lat_name).points
-        lons = point_cube.coord(lon_name).points
+        point_lat_name, point_lon_name = get_cube_yxcoordname(point_cube)
+        point_lats = point_cube.coord(point_lat_name).points
+        point_lons = point_cube.coord(point_lon_name).points
 
         y_coord, x_coord = get_cube_yxcoordname(cube)
-        if isinstance(
-            cube.coord(x_coord).coord_system, iris.coord_systems.RotatedGeogCS
+
+        # Rotate point_cube coords if required to match model coord rotation.
+        if (
+            isinstance(
+                cube.coord(x_coord).coord_system, iris.coord_systems.RotatedGeogCS
+            )
+            and point_lat_name == "latitude"
+            and point_lon_name == "longitude"
         ):
-            lons_rp, lats_rp = rotate_pole(
-                lons,
-                lats,
+            point_lons_rp, point_lats_rp = rotate_pole(
+                point_lons,
+                point_lats,
                 pole_lon=cube.coord(x_coord).coord_system.grid_north_pole_longitude,
                 pole_lat=cube.coord(x_coord).coord_system.grid_north_pole_latitude,
             )
-            sample_points = [("grid_latitude", lats_rp), ("grid_longitude", lons_rp)]
+            sample_points = [
+                ("grid_latitude", point_lats_rp),
+                ("grid_longitude", point_lons_rp),
+            ]
+        # Default, sample points based on point cube dimensions
         else:
             sample_points = [
-                ("latitude", np.array(lats)),
-                ("longitude", np.array(lons)),
+                (point_lat_name, np.array(point_lats)),
+                (point_lon_name, np.array(point_lons)),
             ]
 
         # Interpolate fld cube to required sample points
