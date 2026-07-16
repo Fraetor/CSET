@@ -578,5 +578,5 @@ def check_if_cylc_workflow() -> Path | None:
     except KeyError:
         pass
 
-    # If KeyError, or path does not exist, return None
+    # If ROSE_DATAC unset or its path does not exist, return None
     return None
