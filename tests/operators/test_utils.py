@@ -665,3 +665,24 @@ def test_valid_sequence_coord_not_in_cube(cube):
     """Check that error raised if sequence coordinate not in cube."""
     with pytest.raises(ValueError, match="Cube must have a dummy coordinate"):
         operator_utils.check_sequence_coordinate(cube, "dummy")
+
+
+def test_check_if_cylc_workflow_true(monkeypatch, tmp_path):
+    """Check that running in Cylc returns True and Path."""
+    # Create mock environment variable
+    monkeypatch.setenv("ROSE_DATAC", str(tmp_path))
+
+    assert operator_utils.check_if_cylc_workflow() == tmp_path
+
+
+def test_check_if_cylc_workflow_no_dir(monkeypatch, tmp_path):
+    """Test ROSE_DATAC present but no dir."""
+    # Create mock environment variable
+    monkeypatch.setenv("ROSE_DATAC", str(tmp_path) + "/foo/")
+
+    assert operator_utils.check_if_cylc_workflow() is None
+
+
+def test_check_if_cylc_workflow_false(monkeypatch, tmp_path):
+    """Test no ROSE_DATAC present."""
+    assert operator_utils.check_if_cylc_workflow() is None
