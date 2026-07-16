@@ -659,7 +659,7 @@ def test_valid_sequence_coord_not_in_cube(cube):
 
 def test_check_if_cylc_workflow_true(monkeypatch, tmp_path):
     """Check that running in Cylc returns True and Path."""
-    # Create dummy environment variable
+    # Create mock environment variable
     monkeypatch.setenv("ROSE_DATAC", str(tmp_path))
 
     assert operator_utils.check_if_cylc_workflow() == Path(tmp_path)
