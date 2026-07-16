@@ -438,8 +438,6 @@ def scores_correlation_pearsonr(
 
     scores_cube.rename(f"Pearson_Correlation_of_{base.name()}")
     return scores_cube
-    RMSE.rename(f"RMSE_of_{base.name()}")
-    return RMSE
 
 
 def scores_crps_for_ensemble(
