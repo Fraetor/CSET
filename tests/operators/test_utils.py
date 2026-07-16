@@ -662,7 +662,7 @@ def test_check_if_cylc_workflow_true(monkeypatch, tmp_path):
     # Create mock environment variable
     monkeypatch.setenv("ROSE_DATAC", str(tmp_path))
 
-    assert operator_utils.check_if_cylc_workflow() == Path(tmp_path)
+    assert operator_utils.check_if_cylc_workflow() == tmp_path
 
 
 def test_check_if_cylc_workflow_no_dir(monkeypatch, tmp_path):
