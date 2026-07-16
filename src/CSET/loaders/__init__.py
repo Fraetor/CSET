@@ -32,6 +32,7 @@ from CSET.loaders import (
     test,
     timeseries,
     transects,
+    verification,
 )
 
 __all__ = [
@@ -47,4 +48,5 @@ __all__ = [
     "test",
     "timeseries",
     "transects",
+    "verification",
 ]

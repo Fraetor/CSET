@@ -187,6 +187,9 @@ def read_cubes(
     # Load the rest of the models.
     cubes.extend(itertools.chain.from_iterable(model_cubes))
 
+    # Enable different point-based observation sources to be concatenated.
+    cubes = _check_combine_point_observations(cubes)
+
     # Unify time units so different case studies can merge.
     iris.util.unify_time_units(cubes)
 
@@ -203,6 +206,14 @@ def read_cubes(
     # Ensure dimension coordinates are bounded.
     for cube in cubes:
         for dim_coord in cube.coords(dim_coords=True):
+            if (dim_coord.standard_name == "time") and (
+                dim_coord.name()
+                not in itertools.chain.from_iterable(
+                    m.coord_names for m in cube.cell_methods if m.method != "point"
+                )
+            ):
+                # Instantaneous time coordinate
+                continue
             # Iris can't guess the bounds of a scalar coordinate.
             if not dim_coord.has_bounds() and dim_coord.shape[0] > 1:
                 dim_coord.guess_bounds()
@@ -224,7 +235,7 @@ def _load_model(
     logging.debug("Constraint: %s", constraint)
     cubes = iris.load(input_files, constraint, callback=_loading_callback)
     # Make the UM's winds consistent with LFRic.
-    _fix_um_winds(cubes)
+    cubes = _fix_um_winds(cubes)
 
     # Add model_name attribute to each cube to make it available at any further
     # step without needing to pass it as function parameter.
@@ -898,23 +909,32 @@ def _fix_um_winds(cubes: iris.cube.CubeList):
     speed_constr = iris.AttributeConstraint(STASH="m01s03i227")
     try:
         if cubes.extract(u_constr) and cubes.extract(v_constr):
+            if len(cubes) == 2:
+                wind_only = True
+            else:
+                wind_only = False
             if len(cubes.extract(u_constr)) == 1 and not cubes.extract(speed_constr):
                 _add_wind_speed_um(cubes)
             # Convert winds in the UM to be relative to true east and true north.
             _convert_wind_true_dirn_um(cubes)
+            # Return only wind_speed cube
+            if wind_only:
+                cubes = cubes.extract(speed_constr)
     except (KeyError, AttributeError):
         pass
+
+    return cubes
 
 
 def _add_wind_speed_um(cubes: iris.cube.CubeList):
     """Add windspeeds to cubes from the UM."""
-    wspd10 = (
-        cubes.extract_cube(iris.AttributeConstraint(STASH="m01s03i225"))[0] ** 2
-        + cubes.extract_cube(iris.AttributeConstraint(STASH="m01s03i226"))[0] ** 2
-    ) ** 0.5
+    u_wind = cubes.extract_cube(iris.AttributeConstraint(STASH="m01s03i225"))
+    v_wind = cubes.extract_cube(iris.AttributeConstraint(STASH="m01s03i226"))
+    wspd10 = (u_wind**2 + v_wind**2) ** 0.5
     wspd10.attributes["STASH"] = "m01s03i227"
     wspd10.standard_name = "wind_speed"
     wspd10.long_name = "wind_speed_at_10m"
+    wspd10.units = u_wind.units
     cubes.append(wspd10)
 
 
@@ -1088,3 +1108,16 @@ def _normalise_ML_varname(cube: iris.cube.Cube):
             cube.long_name = (
                 "vapour_specific_humidity_at_pressure_levels_for_climate_averaging"
             )
+
+
+def _check_combine_point_observations(cubes: iris.cube.CubeList):
+    """Enable cubes containing different point observation sources to be concatenated."""
+    nstation = 0
+    for cube in cubes:
+        if "station" in [coord.name() for coord in cube.coords(dim_coords=True)]:
+            if "obs_source" in [coord.name() for coord in cube.coords()]:
+                cube.remove_coord("obs_source")
+            cube.coord("station").points = cube.coord("station").points + nstation
+            nstation = nstation + len(cube.coord("station").points)
+
+    return cubes
