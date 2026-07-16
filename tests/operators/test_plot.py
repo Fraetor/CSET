@@ -72,48 +72,22 @@ def test_setup_spatial_map_global(cube):
     assert bounds[3] == np.max(cube.coord("latitude").points)
 
 
-def test_setup_spatial_map_npole():
+def test_setup_spatial_map_npole(north_polar_cube):
     """Setup spatial map for Arctic example."""
-    cube = iris.cube.Cube(
-        np.random.rand(5, 36), standard_name="air_temperature", units="K"
-    )
-    cube.add_dim_coord(
-        iris.coords.DimCoord(
-            np.arange(50, 100, 10), standard_name="latitude", units="degrees"
-        ),
-        0,
-    )
-    cube.add_dim_coord(
-        iris.coords.DimCoord(
-            np.arange(0, 360, 10), standard_name="longitude", units="degrees"
-        ),
-        1,
-    )
     figure = mpl.figure.Figure()
-    axes_gl = plot._setup_spatial_map(cube, figure, mpl.colormaps["viridis"])
+    axes_gl = plot._setup_spatial_map(
+        north_polar_cube, figure, mpl.colormaps["viridis"]
+    )
     assert axes_gl == figure.gca()
     assert axes_gl.projection == ccrs.NorthPolarStereo(central_longitude=0.0)
 
 
-def test_setup_spatial_map_spole():
+def test_setup_spatial_map_spole(south_polar_cube):
     """Setup spatial map for Antarctic example."""
-    cube = iris.cube.Cube(
-        np.random.rand(4, 36), standard_name="air_temperature", units="K"
-    )
-    cube.add_dim_coord(
-        iris.coords.DimCoord(
-            np.arange(-90, -50, 10), standard_name="latitude", units="degrees"
-        ),
-        0,
-    )
-    cube.add_dim_coord(
-        iris.coords.DimCoord(
-            np.arange(-180, 180, 10), standard_name="longitude", units="degrees"
-        ),
-        1,
-    )
     figure = mpl.figure.Figure()
-    axes_gl = plot._setup_spatial_map(cube, figure, mpl.colormaps["viridis"])
+    axes_gl = plot._setup_spatial_map(
+        south_polar_cube, figure, mpl.colormaps["viridis"]
+    )
     assert axes_gl == figure.gca()
     assert axes_gl.projection == ccrs.SouthPolarStereo(central_longitude=180.0)
 
