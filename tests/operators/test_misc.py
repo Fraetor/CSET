@@ -104,6 +104,15 @@ def test_subtraction_single_cubelist_cube(cube):
     assert np.allclose(b.data, 0.0, atol=1e-5, equal_nan=True)
 
 
+def test_subtraction_cubelist_from_cube(cube):
+    """Subtracts a cubelist from a cube."""
+    a = iris.cube.CubeList([cube, cube])
+    b = misc.subtraction(cube, a)
+    assert isinstance(b, iris.cube.CubeList)
+    assert np.allclose(b[0].data, 0.0, atol=1e-5, equal_nan=True)
+    assert np.allclose(b[1].data, 0.0, atol=1e-5, equal_nan=True)
+
+
 def test_division(cube):
     """Divides one object by another."""
     a = cube / cube

@@ -186,6 +186,7 @@ def subtraction(
     If called with 2 Cubes as input, will return a difference cube.
     If called with 2 CubeLists as input, with return a CubeList of differences.
     If called with CubeList as minuend and Cube as subtrahend, will return CubeList of differences subtracting Cube from each element of input CubeList.
+    If called with Cube as minuend and CubeList as subtrahend, will return CubeList of differences subtracting each element on CubeList from input Cube.
 
     Examples
     --------
@@ -193,9 +194,9 @@ def subtraction(
 
     """
 
-    def subtract_preserve_attributes(a, b):
-        result = a - b
-        result.attributes.update(a.attributes)
+    def subtract_preserve_attributes(cube_a: Cube, cube_b: Cube) -> Cube:
+        result = cube_a - cube_b
+        result.attributes.update(cube_a.attributes)
         return result
 
     # Case where both inputs are single cubes
@@ -208,16 +209,23 @@ def subtraction(
     # Case: subtrahend also iterable
     if isinstance(subtrahend, iris.cube.CubeList):
         cubes_b = iter_maybe(subtrahend)
-        result = iris.cube.CubeList(
-            [
-                subtract_preserve_attributes(a, b)
-                for a, b in zip(cubes_a, cubes_b, strict=True)
-            ]
-        )
+        if isinstance(minuend, iris.cube.CubeList):
+            # Case: subtract cubelist from cubelist - assume both same sizes
+            result = iris.cube.CubeList(
+                [
+                    subtract_preserve_attributes(cube_a, cube_b)
+                    for cube_a, cube_b in zip(cubes_a, cubes_b, strict=True)
+                ]
+            )
+        else:
+            # Case: subtract each element of subtrahend from single cube
+            result = iris.cube.CubeList(
+                [subtract_preserve_attributes(minuend, cube_b) for cube_b in cubes_b]
+            )
     else:
         # Case: subtract single cube from each minuend
         result = iris.cube.CubeList(
-            [subtract_preserve_attributes(a, subtrahend) for a in cubes_a]
+            [subtract_preserve_attributes(cube_a, subtrahend) for cube_a in cubes_a]
         )
 
     # Return single cube if only one result, else return CubeList
