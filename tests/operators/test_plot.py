@@ -221,7 +221,7 @@ def test_set_title_and_filename_year_one(cube):
     assert plot_title == "recipe"
 
 
-def test_set_axis_range_single_cube(cube):
+def test_set_axis_range_single_cube(cube, tmp_working_dir):
     """Test _set_axis_range with a single cube, without levels set."""
     cubes = iris.cube.CubeList([cube])
 
@@ -231,7 +231,7 @@ def test_set_axis_range_single_cube(cube):
     assert vmax == cube.data.max()
 
 
-def test_set_axis_range_cubelist(cube):
+def test_set_axis_range_cubelist(cube, tmp_working_dir):
     """Test _set_axis_range with a cubelist, without levels set."""
     cubes = iris.cube.CubeList([cube, 2.0 * cube])
 
@@ -241,7 +241,7 @@ def test_set_axis_range_cubelist(cube):
     assert vmax == 2.0 * cube.data.max()
 
 
-def test_set_axis_range_levels(cube):
+def test_set_axis_range_levels(cube, tmp_working_dir):
     """Test _set_axis_range with a single cube, for variable with levels set."""
     cube.rename("land_binary_mask")
     cubes = iris.cube.CubeList([cube])
@@ -821,7 +821,7 @@ def test_plot_histogram_single_plot(histogram_cube, tmp_working_dir):
     assert Path("test_20240116060000.png").is_file()
 
 
-def test_plot_histogram_series_multi_model(histogram_cube):
+def test_plot_histogram_series_multi_model(histogram_cube, tmp_working_dir):
     """Test histogram plotting with multiple model inputs."""
     c1 = histogram_cube.copy()
     c1.attributes["model_name"] = "model_1"
