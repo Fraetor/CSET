@@ -2,7 +2,7 @@ category: Scores
 title: "$VARNAME\nScores Pearson's Correlation timeseries between $OTHER_MODEL and $BASE_MODEL $SUBAREA_NAME"
 description: |
   Extracts and plots the Pearson's Correlation coefficient in $VARNAME
-  for all times. The PC is calculated based on that used in the
+  computed over the domain for each timestep. The PC is calculated based on that used in the
   package [`scores`](https://scores.readthedocs.io/en/stable/api.html#scores.continuous.correlation.pearsonr).
   This recipe allows the preservation of the time coordinate to produce a timeseries. Therefore, the PC is
   collapsed over all other coordinates in the cube and calculated for every timestep.
