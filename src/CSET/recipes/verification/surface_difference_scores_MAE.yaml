@@ -1,11 +1,19 @@
 category: Scores
 title: "$METHOD $VARNAME\nScores Mean Absolute Error between $OTHER_MODEL and $BASE_MODEL $SUBAREA_NAME"
 description: |
-  Extracts and plots the Mean Absolute Error in $METHOD of $VARNAME
-  for all times. The MAE is calculated based on that used in the
+  Extracts and plots the Mean Absolute Error in $METHOD of $VARNAME.
+  The MAE is calculated based on that used in the
   package [`scores`](https://scores.readthedocs.io/en/stable/api.html#scores.continuous.mae).
   This recipe preserves the time, latitude and longitude coordinates.
   This means a sequence of spatial plots of the MAE can be produced.
+
+  This recipe can preserve the time, latitude and longitude coordinates, in which case
+  a sequence of spatial plots of the MAE are produced according to the averaging
+  method i.e. SEQ, MAX and MIN.
+
+  Alternatively, the MAE can be computed over all time points in the case study, i.e.
+  preserving just the latitude and longitude coordinates by selecting the method CASE.
+  This will produce a single output plot of the total MAE.
 
   A larger MAE implies a greater error than a smaller MAE. An
   RMSE of zero indicates the two fields most likely match. The MAE is calculated
@@ -38,9 +46,13 @@ steps:
     subarea_type: $SUBAREA_TYPE
     subarea_extent: $SUBAREA_EXTENT
 
+    # The preserved coordinates specifies whether or not the
+    # MAE is to be computed over the entire case study.
   - operator: scoreswrappers.scores_mae
     preserved_coordinates: $PRESERVED_COORDS
 
+    # This collapse is relevant only if the MAE has not been
+    # computed across the entire case study.
   - operator: collapse.collapse
     coordinate: ["time"]
     method: $METHOD
