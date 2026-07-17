@@ -124,7 +124,7 @@ def load(conf: Config):
     # recipe must be done by passing lists of the radar_ids and
     # the radar_names. As this is a multiline plot, all radar sources
     # share the same radar variable name.
-    if conf.HISTOGRAM_SURFACE_FIELD:
+    if conf.HISTOGRAM_SURFACE_FIELD and accum_radars:
         yield RawRecipe(
             recipe="generic_surface_histogram_series.yaml",
             # model_ids -> Becomes $INPUT_PATHS
@@ -162,7 +162,7 @@ def load(conf: Config):
         )
 
     # Timeseries plot of Nimrod hourly surface rainfall accumulation.
-    if conf.TIMESERIES_SURFACE_FIELD:
+    if conf.TIMESERIES_SURFACE_FIELD and accum_radars:
         yield RawRecipe(
             recipe="radar_mean_time_series.yaml",
             # model_ids -> Becomes $INPUT_PATHS
