@@ -49,8 +49,8 @@ def test_scores_correlation_pearsonr(cube: iris.cube.Cube):
     # As both cubes use the same data, check the Pearson correlation is one.
     assert isinstance(correlation_pearsonr_cube, iris.cube.Cube)
     assert np.allclose(
-        correlation_pearsonr_cube.data - 1.0,
-        np.zeros_like(correlation_pearsonr_cube.data),
+        correlation_pearsonr_cube.data,
+        np.ones_like(correlation_pearsonr_cube.data),
         atol=1e-9,
     )
     assert correlation_pearsonr_cube.standard_name is None
