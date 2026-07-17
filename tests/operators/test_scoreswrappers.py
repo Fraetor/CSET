@@ -55,7 +55,7 @@ def test_scores_correlation_pearsonr(cube: iris.cube.Cube):
     )
     assert correlation_pearsonr_cube.standard_name is None
     assert (
-        correlation_pearsonr_cube.long_name == "Pearsonr_Correlation_of_air_temperature"
+        correlation_pearsonr_cube.long_name == "Pearson_Correlation_of_air_temperature"
     )
 
 
