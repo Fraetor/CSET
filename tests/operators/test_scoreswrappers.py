@@ -55,7 +55,7 @@ def test_scores_correlation_pearsonr(cube: iris.cube.Cube):
     )
     assert correlation_pearsonr_cube.standard_name is None
     assert (
-        correlation_pearsonr_cube.long_name == "correlation_pearsonr_of_air_temperature"
+        correlation_pearsonr_cube.long_name == "Pearsonr_Correlation_of_air_temperature"
     )
 
 
@@ -75,7 +75,7 @@ def test_scores_additive_bias(cube: iris.cube.Cube):
         additive_bias_cube.data, np.zeros_like(additive_bias_cube.data), atol=1e-9
     )
     assert additive_bias_cube.standard_name is None
-    assert additive_bias_cube.long_name == "additive_bias_of_air_temperature"
+    assert additive_bias_cube.long_name == "Additive_Bias_of_air_temperature"
 
 
 def test_scores_mae(cube: iris.cube.Cube):
