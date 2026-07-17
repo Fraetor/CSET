@@ -34,6 +34,7 @@ steps:
   - operator: scoreswrappers.scores_correlation_pearsonr
     preserved_coordinates: ["time"]
 
+    # Plot a timeseries of the Pearson Correlation
   - operator: plot.plot_line_series
     series_coordinate: time
 
