@@ -754,6 +754,22 @@ def _plot_and_save_spatial_plot(
         cbar.set_ticklabels([f"{level:.2f}" for level in levels])
         if "rainfall" or "snowfall" or "visibility" in cube.name():
             cbar.set_ticklabels([f"{level:.3g}" for level in levels])
+        # Tick labels for rainfall rates from Nimrod radar data.
+        if "rainfall rate composite" in cube.name():
+            cbar.set_ticklabels([f"{level:.3g}" for level in levels])
+        # Tick labels for rain accumulations from Nimrod radar data.
+        if "rain accumulation" in cube.name():
+            cbar.set_ticklabels([f"{level:.3g}" for level in levels])
+        if "wts accumulation" in cube.name():
+            tick_levels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+            cbar.minorticks_off()
+            cbar.set_ticks(tick_levels)
+            cbar.set_ticklabels([f"{level:.3g}" for level in tick_levels])
+            cbar.set_label(label=f"{cube.name()}", size=14)
+        # Tick labels for model rainfall data.
+        if "surface_microphysical" in cube.name():
+            cbar.set_ticklabels([f"{level:.3g}" for level in levels])
+        # Tick labels for Nimrod weights data.
         logging.debug("Set colorbar ticks and labels.")
 
     # Save plot.
@@ -1494,7 +1510,12 @@ def _plot_and_save_histogram_series(
         # Easier to check title (where var name originates)
         # than seeing if long names exist etc.
         # Exception case, where distribution better fits log scales/bins.
-        if "surface_microphysical" in title:
+        if (
+            ("surface_microphysical" in title)
+            or ("rain accumulation" in title)
+            or ("Rainfall rate Composite" in title)
+            or ("Nimrod_5min" in title)
+        ):
             if "amount" in title:
                 # Compute histogram following Klingaman et al. (2017): ASoP
                 bin2 = np.exp(np.log(0.02) + 0.1 * np.linspace(0, 99, 100))
@@ -1532,7 +1553,12 @@ def _plot_and_save_histogram_series(
         x, y = np.histogram(cube_data_1d, bins=bins, density=density)
 
         # Compute area under curve.
-        if "surface_microphysical" in title and "amount" in title:
+        if (
+            ("surface_microphysical" in title and "amount" in title)
+            or ("rain_accumulation" in title)
+            or ("Rainfall rate Composite" in title)
+            or ("Nimrod_5min" in title)
+        ):
             bin_mean = (bins[:-1] + bins[1:]) / 2.0
             x = x * bin_mean / x.sum()
             x = x[1:]
@@ -1548,7 +1574,11 @@ def _plot_and_save_histogram_series(
         f"{iter_maybe(cubes)[0].name()} / {iter_maybe(cubes)[0].units}", fontsize=14
     )
     ax.set_ylabel("Normalised probability density", fontsize=14)
-    if "surface_microphysical" in title and "amount" in title:
+    if (
+        ("surface_microphysical" in title and "amount" in title)
+        or ("rain accumulation" in title)
+        or ("Nimrod_5min" in title)
+    ):
         ax.set_ylabel(
             f"Contribution to mean ({iter_maybe(cubes)[0].units})", fontsize=14
         )
@@ -2009,7 +2039,6 @@ def plot_line_series(
     -------
     iris.cube.Cube | iris.cube.CubeList
         The original Cube or CubeList (so further operations can be applied).
-        plotted data.
 
     Raises
     ------
