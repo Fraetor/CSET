@@ -285,7 +285,42 @@ def scores_rmse(cubes: CubeList, preserved_coordinates: list[str] | str | None =
 
 
 def scores_mae(cubes: CubeList, preserved_coordinates: list[str] | str | None = None):
-    """Calculate the Mean Absolute Error (MAE) using scores."""
+    r"""Calculate the Mean Absolute Error (MAE) using scores.
+
+    Acts as a wrapper around the MAE calculation from ``scores`` ([scoresa]_, [scoresb]_).
+
+    Parameters
+    ----------
+    cubes: iris.cube.CubeList
+        A CubeList containing exactly two cubes: a base and an "other" model,
+        this can be an analysis and the model.
+    preserved_coordinates: list[str] | str | None, default is None.
+        The coordinates that you wish to preserve in the calculaiton of the
+        MAE. For example if you want a map of each time you can preserve
+        ["time","grid_latitude", "grid_longitude"] or if you want a time series
+        you can preserve ["time"], if you want to collapse to a single value
+        use `None`. The default is `None`.
+
+    Returns
+    -------
+    scores_cube: iris.cube.Cube
+        A cube containing the MAE between the base and other cube.
+
+    References
+    ----------
+    .. [scoresa] Leeuwenburg, T., Loveday, N., Ebert, E. E., Cook, H.,
+        Khanarmuei, M., Taggart, R. J., Ramanathan, N., Carroll, M., Chong, S.,
+        Griffiths, A., & Sharples, J. (2024) "scores: A Python package for
+        verifying and evaluating models and predictions with xarray". Journal
+        of Open Source Software, vol. 9, 6889. doi: 10.21105/joss.06889
+
+    .. [scoresb] Leeuwenburg, T., Loveday, N., Ramanathan, N., Chong, S.,
+        Taggart, R. J., Shrestha, D., Khanarmuei, M., Cook, H., Bluett, L., Ebert,
+        E. E., Carroll, M., Trotta, B., Bishop, S., Squire, D. T., Griffiths, A.,
+        Pagano, T. C., Fisher, A. J., Mandelbaum, T., Jinghan, F., … Smallwood, J.
+        (2026) "scores: Metrics for the verification, evaluation and optimisation of
+        forecasts, predictions or models (2.5.0)". Zenodo. doi: 10.5281/zenodo.18638494
+    """
     base, other = _sort_cubes_for_verification(cubes)
 
     # Copy the coordinates of the input cubes.
@@ -338,7 +373,42 @@ def scores_mae(cubes: CubeList, preserved_coordinates: list[str] | str | None = 
 def scores_additive_bias(
     cubes: CubeList, preserved_coordinates: list[str] | str | None = None
 ):
-    """Calculate the Additive Bias (Mean Error) using scores."""
+    r"""Calculate the Additive Bias (Mean Error) using scores.
+
+    Acts as a wrapper around the ME calculation from ``scores`` ([scoresa]_, [scoresb]_).
+
+    Parameters
+    ----------
+    cubes: iris.cube.CubeList
+        A CubeList containing exactly two cubes: a base and an "other" model,
+        this can be an analysis and the model.
+    preserved_coordinates: list[str] | str | None, default is None.
+        The coordinates that you wish to preserve in the calculaiton of the
+        ME. For example if you want a map of each time you can preserve
+        ["time","grid_latitude", "grid_longitude"] or if you want a time series
+        you can preserve ["time"], if you want to collapse to a single value
+        use `None`. The default is `None`.
+
+    Returns
+    -------
+    scores_cube: iris.cube.Cube
+        A cube containing the ME between the base and other cube.
+
+    References
+    ----------
+    .. [scoresa] Leeuwenburg, T., Loveday, N., Ebert, E. E., Cook, H.,
+        Khanarmuei, M., Taggart, R. J., Ramanathan, N., Carroll, M., Chong, S.,
+        Griffiths, A., & Sharples, J. (2024) "scores: A Python package for
+        verifying and evaluating models and predictions with xarray". Journal
+        of Open Source Software, vol. 9, 6889. doi: 10.21105/joss.06889
+
+    .. [scoresb] Leeuwenburg, T., Loveday, N., Ramanathan, N., Chong, S.,
+        Taggart, R. J., Shrestha, D., Khanarmuei, M., Cook, H., Bluett, L., Ebert,
+        E. E., Carroll, M., Trotta, B., Bishop, S., Squire, D. T., Griffiths, A.,
+        Pagano, T. C., Fisher, A. J., Mandelbaum, T., Jinghan, F., … Smallwood, J.
+        (2026) "scores: Metrics for the verification, evaluation and optimisation of
+        forecasts, predictions or models (2.5.0)". Zenodo. doi: 10.5281/zenodo.18638494
+    """
     base, other = _sort_cubes_for_verification(cubes)
 
     # Copy the coordinates of the input cubes.
@@ -390,7 +460,42 @@ def scores_additive_bias(
 def scores_correlation_pearsonr(
     cubes: CubeList, preserved_coordinates: list[str] | str | None = None
 ):
-    """Calculate the Pearson's Correlation using scores."""
+    r"""Calculate the Pearson's Correlation (PC) coefficient using scores.
+
+    Acts as a wrapper around the PC calculation from ``scores`` ([scoresa]_, [scoresb]_).
+
+    Parameters
+    ----------
+    cubes: iris.cube.CubeList
+        A CubeList containing exactly two cubes: a base and an "other" model,
+        this can be an analysis and the model.
+    preserved_coordinates: list[str] | str | None, default is None.
+        The coordinates that you wish to preserve in the calculaiton of the
+        PC. For example if you want a map of each time you can preserve
+        ["time","grid_latitude", "grid_longitude"] or if you want a time series
+        you can preserve ["time"], if you want to collapse to a single value
+        use `None`. The default is `None`.
+
+    Returns
+    -------
+    scores_cube: iris.cube.Cube
+        A cube containing the PC between the base and other cube.
+
+    References
+    ----------
+    .. [scoresa] Leeuwenburg, T., Loveday, N., Ebert, E. E., Cook, H.,
+        Khanarmuei, M., Taggart, R. J., Ramanathan, N., Carroll, M., Chong, S.,
+        Griffiths, A., & Sharples, J. (2024) "scores: A Python package for
+        verifying and evaluating models and predictions with xarray". Journal
+        of Open Source Software, vol. 9, 6889. doi: 10.21105/joss.06889
+
+    .. [scoresb] Leeuwenburg, T., Loveday, N., Ramanathan, N., Chong, S.,
+        Taggart, R. J., Shrestha, D., Khanarmuei, M., Cook, H., Bluett, L., Ebert,
+        E. E., Carroll, M., Trotta, B., Bishop, S., Squire, D. T., Griffiths, A.,
+        Pagano, T. C., Fisher, A. J., Mandelbaum, T., Jinghan, F., … Smallwood, J.
+        (2026) "scores: Metrics for the verification, evaluation and optimisation of
+        forecasts, predictions or models (2.5.0)". Zenodo. doi: 10.5281/zenodo.18638494
+    """
     base, other = _sort_cubes_for_verification(cubes)
 
     # Copy the coordinates of the input cubes.
