@@ -112,7 +112,7 @@ def test_scores_rmse(cube: iris.cube.Cube):
     assert rmse_cube.long_name == "RMSE_of_air_temperature"
 
 
-def test_scores_rmse_nonzero(cube: iris.cube.Cube):
+def test_scores_rmse_nonzero():
     """Test taking the rmse between two different cubes."""
     # Data preparation.
     cube = iris.cube.Cube(
