@@ -821,7 +821,7 @@ def test_plot_histogram_single_plot(histogram_cube, tmp_working_dir):
     assert Path("test_20240116060000.png").is_file()
 
 
-def test_plot_histogram_series_multi_model(histogram_cube):
+def test_plot_histogram_series_multi_model(histogram_cube, tmp_working_dir):
     """Test histogram plotting with multiple model inputs."""
     c1 = histogram_cube.copy()
     c1.attributes["model_name"] = "model_1"
